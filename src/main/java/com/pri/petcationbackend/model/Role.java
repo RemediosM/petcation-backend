@@ -23,8 +23,6 @@ public class Role {
     @Column(name = "Role_id")
     private Long roleId;
     private String name;
-
     @ManyToMany(mappedBy = "roles")
     Set<User> users;
-
 }

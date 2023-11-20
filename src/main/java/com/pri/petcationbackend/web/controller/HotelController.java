@@ -16,8 +16,8 @@ import java.util.List;
 public class HotelController {
 
     @GetMapping("/hotels")
-    @Operation(summary = "Get pets for user.")
-    public List<HotelDto> getPets() {
+    @Operation(summary = "Get hotels.")
+    public List<HotelDto> getHotels() {
 //        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //
 //        User user = userService.findByEmail(principal instanceof UserDetails userDetails

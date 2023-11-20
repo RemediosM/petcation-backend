@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Entity
 @Table(name="pet_types")
 @Getter
@@ -20,11 +22,12 @@ public class PetType {
     @GeneratedValue
     @Column(name = "Pet_type_id")
     private Long petTypeId;
-
     @NotNull
     @NotEmpty
     @Column(name = "Name")
     private String name;
+    @ManyToMany(mappedBy = "petTypes")
+    Set<Room> rooms;
 
     public PetType(String name) {
         this.name = name;

@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class PetDto {
+    private Long id;
     private String name;
     private String description;
     private Integer age;

@@ -9,6 +9,6 @@ public interface UserService {
 
     void registerNewUserAccount(SignUpDto signUpDto);
     User findByEmail(String email);
-
     UserDto loadUserByUsername(String email) throws UsernameNotFoundException;
+    User getCurrentUser();
 }
