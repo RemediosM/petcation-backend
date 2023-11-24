@@ -1,5 +1,6 @@
 package com.pri.petcationbackend.model;
 
+import com.pri.petcationbackend.web.dto.PetOwnerDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,5 +27,17 @@ public class PetOwner {
 
     public PetOwner(User user) {
         this.user = user;
+    }
+
+    public PetOwnerDto toDto() {
+        PetOwnerDto petOwnerDto = new PetOwnerDto();
+        petOwnerDto.setId(petOwnerId);
+        if(user != null) {
+            petOwnerDto.setEmail(user.getEmail());
+            petOwnerDto.setFirstName(user.getFirstName());
+            petOwnerDto.setLastName(user.getLastName());
+            petOwnerDto.setAddressDto(user.getAddress() != null ? user.getAddress().toDto() : null);
+        }
+        return petOwnerDto;
     }
 }

@@ -1,12 +1,15 @@
 package com.pri.petcationbackend.model;
 
 import com.pri.petcationbackend.web.dto.PetDto;
+import com.pri.petcationbackend.web.dto.PetTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,7 +26,7 @@ public class Pet {
     private Long petId;
 
     @Column(name = "Age")
-    private Integer age;
+    private BigDecimal age;
 
     @Column(name = "Name")
     private String name;
@@ -40,10 +43,10 @@ public class Pet {
     @JoinColumn(name = "Pet_type_id")
     private PetType petType;
 
-    @ManyToMany(mappedBy = "pets")
-    Set<Reservation> reservations;
+    @OneToMany(mappedBy = "pet")
+    List<PetsImage> petsImages;
 
-    public Pet(PetOwner petOwner, Integer age, PetType petType, String name, String description) {
+    public Pet(PetOwner petOwner, BigDecimal age, PetType petType, String name, String description) {
         this.petOwner = petOwner;
         this.age = age;
         this.petType = petType;
@@ -58,5 +61,17 @@ public class Pet {
         this.age = petDto.getAge();
         this.description = petDto.getDescription();
         this.petType = petType;
+    }
+
+    public PetDto toDto() {
+        return PetDto.builder()
+                .id(petId)
+                .name(name)
+                .age(age)
+                .petType(PetTypeEnum.valueOf(petType.getName()))
+                .petOwnerDto(petOwner.toDto())
+                .description(description)
+                .images(petsImages.stream().map(PetsImage::toDto).toList())
+                .build();
     }
 }

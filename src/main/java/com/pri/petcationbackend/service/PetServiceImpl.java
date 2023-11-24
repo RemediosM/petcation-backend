@@ -1,8 +1,10 @@
 package com.pri.petcationbackend.service;
 
 import com.pri.petcationbackend.dao.PetTypeRepository;
+import com.pri.petcationbackend.dao.PetsImageRepository;
 import com.pri.petcationbackend.model.Pet;
 import com.pri.petcationbackend.model.PetType;
+import com.pri.petcationbackend.utils.ImageUtils;
 import com.pri.petcationbackend.web.dto.PetDto;
 import com.pri.petcationbackend.web.dto.PetTypeEnum;
 import com.pri.petcationbackend.dao.PetOwnerRepository;
@@ -22,33 +24,31 @@ public class PetServiceImpl implements PetService{
 
     private final PetRepository petRepository;
     private final PetOwnerRepository petOwnerRepository;
-    private final UserService userService;
     private final PetTypeRepository petTypeRepository;
-
-    @Override
-    public List<PetDto> getAllPetsByUser() {
-        User user = userService.getCurrentUser();
-        return getAllPetsByUser(user);
-    }
+    private final PetsImageRepository imageRepository;
 
     @Override
     public List<PetDto> getAllPetsByUser(User user) {
-        if (user == null) return null;
-        List<PetDto> petDtos = new ArrayList<>();
-        petOwnerRepository.findByUser(user)
-                .ifPresent(petOwner -> petRepository.findAllByPetOwner(petOwner)
-                        .forEach(pet ->
-                                petDtos.add(new PetDto(pet.getPetId(), pet.getName(), pet.getDescription(), pet.getAge(),
-                                        PetTypeEnum.valueOf(pet.getPetType().getName()))))
-                );
-        return petDtos;
+        if (user == null) {
+            return null;
+        }
+
+        return petRepository.findAllByUser(user)
+                .stream().map(Pet::toDto)
+                .toList();
     }
 
     @Override
-    public PetDto addModifyPet(PetDto petDto) {
-        User user = userService.getCurrentUser();
-        if(user != null) {
-            petOwnerRepository.findByUser(user)
+    public List<PetDto> getAllPets() {
+        return petRepository.findAll().stream()
+                .map(Pet::toDto)
+                .toList();
+    }
+
+    @Override
+    public PetDto addModifyPet(PetDto petDto, User currentUser) {
+        if(currentUser != null) {
+            petOwnerRepository.findByUser(currentUser)
                     .ifPresent(petOwner -> {
                         PetType petType = petTypeRepository.findByName(petDto.getPetType().name())
                                 .orElse(petTypeRepository.save(new PetType(petDto.getPetType().name())));

@@ -1,5 +1,6 @@
 package com.pri.petcationbackend.model;
 
+import com.pri.petcationbackend.web.dto.PetsImageDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,23 +8,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="images")
+@Table(name="pets_images")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Image {
+public class PetsImage {
 
     @Id
     @GeneratedValue
-    @Column(name = "Image_id")
-    private Long imageId;
+    @Column(name = "Pets_image_id")
+    private Long petsImageId;
     @Column(name = "Image_path")
     private String path;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "Pet_id")
     private Pet pet;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "Hotel_id")
-    private Hotel hotel;
+
+    public PetsImageDto toDto() {
+        return new PetsImageDto(petsImageId, path);
+    }
 }

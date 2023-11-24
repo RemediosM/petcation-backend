@@ -1,8 +1,6 @@
 package com.pri.petcationbackend.web.dto;
 
 import com.pri.petcationbackend.model.Hotel;
-import com.pri.petcationbackend.model.Reservation;
-import com.pri.petcationbackend.model.Room;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -18,11 +16,12 @@ public class HotelDto {
 
     private Long id;
     private String name;
-    private List<Reservation> reservations;
-    private List<Room> rooms;
-    private Map<LocalDate, List<Room>> freeCalendar;
-    private Map<LocalDate, List<Room>> takenCalendar;
-    private byte[] image;
+    private List<ReservationResponseDto> reservations;
+    private List<RoomDto> rooms;
+    private Map<LocalDate, List<RoomDto>> freeCalendar;
+    private Map<LocalDate, List<RoomDto>> takenCalendar;
+    private List<String> images;
+    private AddressDto addressDto;
     private String description;
 
     public HotelDto(Hotel hotel) {

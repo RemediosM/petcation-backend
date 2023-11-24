@@ -11,4 +11,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     @Query("select r from Reservation r left join r.room ro where ro.hotel = :hotel")
     List<Reservation> findAllByHotel(Hotel hotel);
+
+    @Query(
+            value = "SELECT MAX(r.Reservation_number) FROM reservations r",
+            nativeQuery = true)
+    Integer findMaxReservationNumber();
 }

@@ -18,24 +18,12 @@ public class Address {
     @Column(name = "Address_id")
     private Long addressId;
     private String street;
-    private String coordinates;
-
+    private Double latitude;
+    private Double longitude;
     private String phone;
-
     @ManyToOne
     @JoinColumn(name="City_id", nullable=false)
     private City city;
-
-    @Override
-    public String toString() {
-        return "Addresses{" +
-                "id=" + addressId +
-                ", street='" + street + '\'' +
-                ", coordinates='" + coordinates + '\'' +
-                ", city='" + city + '\'' +
-                ", phone='" + phone + '\'' +
-                '}';
-    }
 
     public AddressDto toDto() {
         if(city != null && city.getCountry() != null) {

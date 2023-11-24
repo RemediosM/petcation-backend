@@ -102,7 +102,6 @@ public class UserServiceImpl implements UserService {
                         credentialsNonExpired, accountNonLocked, getAuthorities(user.getRoles())))
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .pets(petService.getAllPetsByUser(user))
                 .addressDto(user.getAddress() != null ? user.getAddress().toDto() : null)
                 .build();
     }

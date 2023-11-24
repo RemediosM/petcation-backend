@@ -54,6 +54,11 @@ public class SecurityConfig {
                                 .requestMatchers("/signup/**").permitAll()
                                 .requestMatchers("/user").authenticated()
                                 .requestMatchers("/logout").authenticated()
+                                .requestMatchers("/deletePet/**").authenticated()
+                                .requestMatchers("/usersPets/**").authenticated()
+                                .requestMatchers("/addModifyPet").authenticated()
+                                .requestMatchers("/deleteReservation").authenticated()
+                                .requestMatchers("/reservation").authenticated()
                                 .requestMatchers("/**").permitAll()
                 )
                 .sessionManagement(session -> session

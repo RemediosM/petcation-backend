@@ -22,7 +22,6 @@ public class UserDto {
     @NotEmpty
     private String lastName;
 
-    private List<PetDto> pets;
     private AddressDto addressDto;
     UserDetails userDetails;
 }
