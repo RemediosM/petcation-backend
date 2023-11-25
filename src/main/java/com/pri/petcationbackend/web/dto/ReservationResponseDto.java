@@ -3,7 +3,7 @@ package com.pri.petcationbackend.web.dto;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -13,8 +13,8 @@ import java.util.Date;
 public class ReservationResponseDto {
 
     private Long id;
-    private Date from;
-    private Date to;
+    private LocalDate from;
+    private LocalDate to;
     private Boolean isTrial;
     private PetDto petDto;
     private RoomDto roomDto;

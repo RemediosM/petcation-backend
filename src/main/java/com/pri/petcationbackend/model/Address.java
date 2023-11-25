@@ -1,8 +1,8 @@
 package com.pri.petcationbackend.model;
 
 import com.pri.petcationbackend.web.dto.AddressDto;
-import lombok.*;
 import jakarta.persistence.*;
+import lombok.*;
 
 
 @Setter
@@ -14,7 +14,7 @@ import jakarta.persistence.*;
 public class Address {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Address_id")
     private Long addressId;
     private String street;
@@ -27,7 +27,7 @@ public class Address {
 
     public AddressDto toDto() {
         if(city != null && city.getCountry() != null) {
-            return new AddressDto(phone, street, city.getName(), city.getCountry().getName());
+            return new AddressDto(phone, street, city.getName(), city.getCountry().getName(), latitude, longitude);
         }
         return null;
     }

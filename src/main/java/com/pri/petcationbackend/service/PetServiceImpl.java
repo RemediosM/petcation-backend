@@ -1,20 +1,16 @@
 package com.pri.petcationbackend.service;
 
-import com.pri.petcationbackend.dao.PetTypeRepository;
-import com.pri.petcationbackend.dao.PetsImageRepository;
-import com.pri.petcationbackend.model.Pet;
-import com.pri.petcationbackend.model.PetType;
-import com.pri.petcationbackend.utils.ImageUtils;
-import com.pri.petcationbackend.web.dto.PetDto;
-import com.pri.petcationbackend.web.dto.PetTypeEnum;
 import com.pri.petcationbackend.dao.PetOwnerRepository;
 import com.pri.petcationbackend.dao.PetRepository;
+import com.pri.petcationbackend.dao.PetTypeRepository;
+import com.pri.petcationbackend.model.Pet;
+import com.pri.petcationbackend.model.PetType;
 import com.pri.petcationbackend.model.User;
+import com.pri.petcationbackend.web.dto.PetDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,7 +21,6 @@ public class PetServiceImpl implements PetService{
     private final PetRepository petRepository;
     private final PetOwnerRepository petOwnerRepository;
     private final PetTypeRepository petTypeRepository;
-    private final PetsImageRepository imageRepository;
 
     @Override
     public List<PetDto> getAllPetsByUser(User user) {

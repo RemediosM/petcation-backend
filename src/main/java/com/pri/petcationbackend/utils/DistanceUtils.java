@@ -21,6 +21,10 @@ public final class DistanceUtils {
         return EARTH_RADIUS * c;
     }
 
+    public boolean isTwoPointsInMaxDistance(int maxDistance, double startLat, double startLong, double endLat, double endLong) {
+        return calculateDistance(startLat, startLong, endLat, endLong) <= maxDistance;
+    }
+
     private double haversine(double val) {
         return Math.pow(Math.sin(val / 2), 2);
     }

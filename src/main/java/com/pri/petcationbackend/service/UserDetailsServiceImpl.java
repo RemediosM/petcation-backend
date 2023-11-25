@@ -1,7 +1,5 @@
 package com.pri.petcationbackend.service;
 
-import com.pri.petcationbackend.dao.PetOwnerRepository;
-import com.pri.petcationbackend.dao.PetRepository;
 import com.pri.petcationbackend.dao.UserRepository;
 import com.pri.petcationbackend.model.Role;
 import com.pri.petcationbackend.model.User;
@@ -23,8 +21,6 @@ import java.util.stream.Collectors;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final PetOwnerRepository petOwnerRepository;
-    private final PetRepository petRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
