@@ -44,6 +44,11 @@ public class HotelController {
         return  hotelService.getAllHotels();
     }
 
+    @GetMapping("/hotel")
+    @Operation(summary = "Get hotel by id.")
+    public HotelDetailsDto getHotelById(@RequestParam Long id) {
+        return  hotelService.getHotelById(id);
+    }
     @GetMapping("/room")
     @Operation(summary = "Get room by id.")
     public RoomDto getRoomById(@RequestParam(value = "id") Long id) {
@@ -56,6 +61,7 @@ public class HotelController {
     public ReservationResponseDto getReservationById(@RequestParam(value = "id") Long id) {
         return reservationRepository.findById(id).stream().map(Reservation::toDto).findAny().orElse(null);
     }
+
 
     @PostMapping("/addReservation")
     @SecurityRequirement(name = "Bearer Authentication")
