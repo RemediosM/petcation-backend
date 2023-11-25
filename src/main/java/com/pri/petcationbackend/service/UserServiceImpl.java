@@ -3,6 +3,7 @@ package com.pri.petcationbackend.service;
 import com.pri.petcationbackend.dao.*;
 import com.pri.petcationbackend.model.*;
 import com.pri.petcationbackend.web.dto.AddressDto;
+import com.pri.petcationbackend.web.dto.ModifyUserDto;
 import com.pri.petcationbackend.web.dto.SignUpDto;
 import com.pri.petcationbackend.web.dto.UserDto;
 import jakarta.transaction.Transactional;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,8 +36,6 @@ public class UserServiceImpl implements UserService {
     private final PetOwnerRepository petOwnerRepository;
     private final PetTypeRepository petTypeRepository;
 
-    private final PetService petService;
-
 
     @Override
     public void registerNewUserAccount(SignUpDto signUpDto)  {
@@ -44,10 +44,8 @@ public class UserServiceImpl implements UserService {
 
         if(addressDto != null && StringUtils.isNotEmpty(addressDto.getCountry()) && StringUtils.isNotEmpty(addressDto.getCity())
             && StringUtils.isNotEmpty(addressDto.getStreet())) {
-            Country country = countryRepository.findByName(addressDto.getCountry())
-                    .orElse(countryRepository.save(new Country(addressDto.getCountry())));
-            City city = cityRepository.findByNameAndCountry(addressDto.getCity(), country)
-                    .orElse(cityRepository.save(new City(addressDto.getCity(), country)));
+            Country country = getCountryOrAddNew(addressDto.getCountry());
+            City city = getCityOrAddNew(addressDto.getCity(), country);
             address = addressRepository.save(Address.builder()
                     .phone(addressDto.getPhoneNumber())
                     .street(addressDto.getStreet())
@@ -78,6 +76,16 @@ public class UserServiceImpl implements UserService {
 
                 }
                 );
+    }
+
+    private City getCityOrAddNew(String city, Country country) {
+        return cityRepository.findByNameAndCountry(city, country)
+                .orElse(cityRepository.save(new City(city, country)));
+    }
+
+    private Country getCountryOrAddNew(String country) {
+        return countryRepository.findByName(country)
+                .orElse(countryRepository.save(new Country(country)));
     }
 
     @Override
@@ -114,6 +122,45 @@ public class UserServiceImpl implements UserService {
         return findByEmail(principal instanceof UserDetails userDetails
                 ? userDetails.getUsername()
                 : principal.toString());
+    }
+
+    @Override
+    public void changePassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserDto modifyUser(ModifyUserDto modifyUserDto) {
+        User user = getCurrentUser();
+        if(modifyUserDto.getFirstName() != null) {
+            user.setFirstName(modifyUserDto.getFirstName());
+        }
+        if(modifyUserDto.getLastName() != null) {
+            user.setLastName(modifyUserDto.getLastName());
+        }
+        AddressDto addressDto = modifyUserDto.getAddressDto();
+        if(addressDto != null) {
+            Address address = user.getAddress();
+            address.setStreet(addressDto.getStreet());
+            address.setPhone(addressDto.getPhoneNumber());
+            if(addressDto.getLatitude() != null) {
+                address.setLatitude(addressDto.getLatitude());
+            }
+            if (addressDto.getLongitude() != null) {
+                address.setLongitude(addressDto.getLongitude());
+            }
+            Country country = address.getCity().getCountry();
+            if(!Objects.equals(addressDto.getCountry(), address.getCity().getCountry().getName())) {
+                country = getCountryOrAddNew(addressDto.getCountry());
+            }
+            if(!Objects.equals(addressDto.getCity(), address.getCity().getName())) {
+                address.setCity(getCityOrAddNew(addressDto.getCity(), country));
+            }
+            user.setAddress(address);
+        }
+        User savedUser = userRepository.save(user);
+        return loadUserByUsername(savedUser.getEmail());
     }
 
     private static Set<GrantedAuthority> getAuthorities (Set<Role> roles) {

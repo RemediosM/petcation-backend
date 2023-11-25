@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name="hotels")
 @Getter
@@ -16,7 +18,7 @@ import lombok.Setter;
 public class Hotel {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Hotel_id")
     private Long hotelId;
     @Column(name = "Name")
@@ -32,11 +34,21 @@ public class Hotel {
     @JoinColumn(name = "Address_id")
     private Address address;
 
+    @OneToMany(mappedBy = "hotel" )
+    private List<HotelsImage> images;
+
+    @OneToMany(mappedBy = "hotel" )
+    private List<Room> rooms;
+
+
     public HotelDto toDto() {
         return HotelDto.builder()
                 .id(hotelId)
                 .name(name)
                 .addressDto(address != null ? address.toDto() : null)
+                .description(description)
+                .images(images.stream().map(HotelsImage::toDto).toList())
+                .rooms(rooms.stream().map(Room::toRoomHotelDto).toList())
                 .build();
     }
 }

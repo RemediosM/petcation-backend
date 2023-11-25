@@ -59,6 +59,8 @@ public class SecurityConfig {
                                 .requestMatchers("/addModifyPet").authenticated()
                                 .requestMatchers("/deleteReservation").authenticated()
                                 .requestMatchers("/reservation").authenticated()
+                                .requestMatchers("/modifyUser").authenticated()
+                                .requestMatchers("/changePassword").authenticated()
                                 .requestMatchers("/**").permitAll()
                 )
                 .sessionManagement(session -> session

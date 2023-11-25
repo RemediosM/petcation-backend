@@ -6,10 +6,7 @@ import com.pri.petcationbackend.model.Reservation;
 import com.pri.petcationbackend.model.Room;
 import com.pri.petcationbackend.service.HotelService;
 import com.pri.petcationbackend.service.ReservationService;
-import com.pri.petcationbackend.web.dto.HotelDto;
-import com.pri.petcationbackend.web.dto.ReservationRequestDto;
-import com.pri.petcationbackend.web.dto.ReservationResponseDto;
-import com.pri.petcationbackend.web.dto.RoomDto;
+import com.pri.petcationbackend.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -32,13 +28,19 @@ public class HotelController {
     private final ReservationService reservationService;
     private final HotelService hotelService;
 
-    @GetMapping("/hotels")
+
+    @PostMapping(value = "/hotels")
     @Operation(summary = "Get hotels by coordinates and date.")
-    public List<HotelDto> getHotels(@RequestParam(value = "latitude") Double lat, @RequestParam(value = "longitude") Double lon,
-                                    @RequestParam(value = "dateFrom") Date dateFrom, @RequestParam(value = "dateTo") Date dateTo) {
+    public List<HotelDto> getHotels(@RequestBody HotelRequestDto hotelRequestDto) {
+        if (hotelRequestDto.getMaxDistance() == null || hotelRequestDto.getMaxDistance() == 0 ) {
+            hotelRequestDto.setMaxDistance(15);
+        }
+        return hotelService.getHotels(hotelRequestDto);
+    }
 
-
-
+    @GetMapping("/allHotels")
+    @Operation(summary = "Get all hotels.")
+    public List<HotelDto> getAllHotels() {
         return  hotelService.getAllHotels();
     }
 

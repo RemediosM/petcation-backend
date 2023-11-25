@@ -12,10 +12,10 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomDto {
+public class RoomHotelDto {
 
     private Long id;
     private BigDecimal price;
-    private HotelRoomDto hotelDto;
     private Set<String> petTypes;
+
 }

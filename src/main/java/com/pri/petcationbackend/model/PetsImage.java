@@ -16,7 +16,7 @@ import lombok.Setter;
 public class PetsImage {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Pets_image_id")
     private Long petsImageId;
     @Column(name = "Image_path")

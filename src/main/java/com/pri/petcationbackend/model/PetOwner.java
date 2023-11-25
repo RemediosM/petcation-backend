@@ -16,7 +16,7 @@ import lombok.Setter;
 public class PetOwner {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Pet_owner_id")
     private Long petOwnerId;
 

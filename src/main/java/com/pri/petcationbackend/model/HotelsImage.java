@@ -1,5 +1,6 @@
 package com.pri.petcationbackend.model;
 
+import com.pri.petcationbackend.web.dto.HotelsImageDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import lombok.Setter;
 public class HotelsImage {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Hotels_image_id")
     private Long petsImageId;
     @Column(name = "Image_path")
@@ -23,4 +24,8 @@ public class HotelsImage {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "Hotel_id")
     private Hotel hotel;
+
+    public HotelsImageDto toDto() {
+        return new HotelsImageDto(petsImageId, path);
+    }
 }

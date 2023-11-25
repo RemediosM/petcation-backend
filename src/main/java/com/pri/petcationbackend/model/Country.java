@@ -1,11 +1,10 @@
 package com.pri.petcationbackend.model;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.*;
 
 @Entity(name = "countries")
 @NoArgsConstructor
@@ -14,7 +13,7 @@ import jakarta.persistence.*;
 @Getter
 public class Country {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Country_id")
     private Long countryId;
     private String name;

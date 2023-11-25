@@ -11,6 +11,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -22,17 +25,23 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public void addReservation(ReservationRequestDto reservationRequestDto) {
-        Room room = roomRepository.findById(reservationRequestDto.getRoomId()).orElse(null);
-        Pet pet = petRepository.findById(reservationRequestDto.getPetId()).orElse(null);
         Integer max = reservationRepository.findMaxReservationNumber();
-        Reservation reservation = Reservation.builder()
-                .reservationNo(max != null ? Long.valueOf(++max) : 1)
-                .from(reservationRequestDto.getFrom())
-                .to(reservationRequestDto.getTo())
-                .isTrial(reservationRequestDto.getIsTrial())
-                .pet(pet)
-                .room(room)
-                .build();
-        reservationRepository.save(reservation);
+        Long reservationNo = max != null ? Long.valueOf(++max) : 1;
+        List<Reservation> reservationsToSave = new ArrayList<>();
+        reservationRequestDto.getPetRoomDtos().forEach(petRoomDto -> {
+            Room room = roomRepository.findById(petRoomDto.getRoomId()).orElse(null);
+            Pet pet = petRepository.findById(petRoomDto.getPetId()).orElse(null);
+            Reservation reservation = Reservation.builder()
+                    .reservationNo(reservationNo)
+                    .from(reservationRequestDto.getFrom())
+                    .to(reservationRequestDto.getTo())
+                    .isTrial(reservationRequestDto.getIsTrial())
+                    .pet(pet)
+                    .room(room)
+                    .build();
+            reservationsToSave.add(reservation);
+
+        });
+        reservationRepository.saveAll(reservationsToSave);
     }
 }

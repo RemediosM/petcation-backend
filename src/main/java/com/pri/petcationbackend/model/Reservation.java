@@ -1,13 +1,13 @@
 package com.pri.petcationbackend.model;
 
-import com.pri.petcationbackend.utils.DateUtils;
 import com.pri.petcationbackend.web.dto.ReservationResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name="reservations")
@@ -19,15 +19,15 @@ import java.util.Date;
 public class Reservation {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Reservation_id")
     private Long reservationId;
     @Column(name = "Reservation_number")
     private Long reservationNo;
     @Column(name = "Date_from")
-    private Date from;
+    private LocalDate from;
     @Column(name = "Date_to")
-    private Date to;
+    private LocalDate to;
     @Column(name = "Trial")
     private Boolean isTrial;
     @ManyToOne(cascade = CascadeType.ALL)
@@ -50,7 +50,7 @@ public class Reservation {
     }
 
     private BigDecimal calculatePrice() {
-        long dateDiff = DateUtils.differenceInDays(from, to);
+        long dateDiff = ChronoUnit.DAYS.between(to, from);
         if(dateDiff > 0 && room != null && room.getPrice() != null) {
             return room.getPrice().multiply(BigDecimal.valueOf(dateDiff)).setScale(2, RoundingMode.HALF_UP);
         }
