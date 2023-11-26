@@ -11,7 +11,7 @@
     <groupId>com.pri</groupId>
     <artifactId>petcation-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>petcation-backend</name>
     <description>petcation-backend</description>
     <properties>

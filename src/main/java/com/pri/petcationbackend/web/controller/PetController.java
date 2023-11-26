@@ -18,6 +18,7 @@ import java.util.List;
 @RestController
 @Tag(name = "Pets")
 @RequiredArgsConstructor
+@CrossOrigin
 public class PetController {
     private final PetService petService;
     private final UserService userService;

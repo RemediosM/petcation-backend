@@ -7,7 +7,7 @@ import com.pri.petcationbackend.model.Hotel;
 import com.pri.petcationbackend.model.Reservation;
 import com.pri.petcationbackend.model.Room;
 import com.pri.petcationbackend.utils.DistanceUtils;
-import com.pri.petcationbackend.web.controller.HotelDetailsDto;
+import com.pri.petcationbackend.web.dto.HotelDetailsDto;
 import com.pri.petcationbackend.web.dto.HotelDto;
 import com.pri.petcationbackend.web.dto.HotelRequestDto;
 import com.pri.petcationbackend.web.dto.PetTypeQtyDto;

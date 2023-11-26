@@ -1,7 +1,5 @@
-package com.pri.petcationbackend.web.controller;
+package com.pri.petcationbackend.web.dto;
 
-import com.pri.petcationbackend.web.dto.AddressDto;
-import com.pri.petcationbackend.web.dto.PetTypeQtyDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

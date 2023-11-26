@@ -21,6 +21,7 @@ import java.util.List;
 @RestController
 @Tag(name = "Hotels")
 @RequiredArgsConstructor
+@CrossOrigin
 public class HotelController {
 
     private final RoomRepository roomRepository;
@@ -40,6 +41,7 @@ public class HotelController {
 
     @GetMapping("/allHotels")
     @Operation(summary = "Get all hotels.")
+    @CrossOrigin
     public List<HotelDto> getAllHotels() {
         return  hotelService.getAllHotels();
     }

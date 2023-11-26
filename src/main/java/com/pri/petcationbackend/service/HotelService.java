@@ -1,6 +1,6 @@
 package com.pri.petcationbackend.service;
 
-import com.pri.petcationbackend.web.controller.HotelDetailsDto;
+import com.pri.petcationbackend.web.dto.HotelDetailsDto;
 import com.pri.petcationbackend.web.dto.HotelDto;
 import com.pri.petcationbackend.web.dto.HotelRequestDto;
 
