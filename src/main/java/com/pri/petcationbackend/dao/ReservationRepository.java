@@ -10,10 +10,10 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    @Query("select r from Reservation r left join r.room ro where ro.hotel = :hotel")
+    @Query("select r from Reservation r left join r.rooms ro where ro.hotel = :hotel")
     List<Reservation> findAllByHotel(Hotel hotel);
 
-    @Query("select max(r.to) from Reservation r left join r.room ro where ro.hotel.hotelId = :id")
+    @Query("select max(r.to) from Reservation r left join r.rooms ro where ro.hotel.hotelId = :id")
     LocalDate findLastReservationForHotel(Long id);
 
     @Query(

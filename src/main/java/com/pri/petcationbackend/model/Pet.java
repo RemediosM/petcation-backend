@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -24,8 +24,8 @@ public class Pet {
     @Column(name = "Pet_id")
     private Long petId;
 
-    @Column(name = "Age")
-    private BigDecimal age;
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @Column(name = "Name")
     private String name;
@@ -44,10 +44,12 @@ public class Pet {
 
     @OneToMany(mappedBy = "pet")
     List<PetsImage> petsImages;
+    @ManyToMany(mappedBy = "pets")
+    private List<Reservation> reservations;
 
-    public Pet(PetOwner petOwner, BigDecimal age, PetType petType, String name, String description) {
+    public Pet(PetOwner petOwner, LocalDate birthDate, PetType petType, String name, String description) {
         this.petOwner = petOwner;
-        this.age = age;
+        this.birthDate = birthDate;
         this.petType = petType;
         this.name = name;
         this.description = description;
@@ -57,7 +59,7 @@ public class Pet {
         this.petOwner = petOwner;
         this.petId = petDto.getId();
         this.name = petDto.getName();
-        this.age = petDto.getAge();
+        this.birthDate = petDto.getBirthDate();
         this.description = petDto.getDescription();
         this.petType = petType;
     }
@@ -66,7 +68,7 @@ public class Pet {
         return PetDto.builder()
                 .id(petId)
                 .name(name)
-                .age(age)
+                .birthDate(birthDate)
                 .petType(PetTypeEnum.valueOf(petType.getName()))
                 .petOwnerDto(petOwner.toDto())
                 .description(description)

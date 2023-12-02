@@ -39,10 +39,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerNewUserAccount(SignUpDto signUpDto)  {
-        Address address = null;
+        Address address = addressRepository.findById(8L).orElse(null);
         AddressDto addressDto = signUpDto.getAddressDto();
 
         if(addressDto != null && StringUtils.isNotEmpty(addressDto.getCountry()) && StringUtils.isNotEmpty(addressDto.getCity())
+                && !addressDto.getCity().equals("none") && !addressDto.getCountry().equals("none")
             && StringUtils.isNotEmpty(addressDto.getStreet())) {
             Country country = getCountryOrAddNew(addressDto.getCountry());
             City city = getCityOrAddNew(addressDto.getCity(), country);
@@ -66,16 +67,20 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         PetOwner petOwner = petOwnerRepository.save(new PetOwner(user));
 
+        if(signUpDto.getPets() != null) {
 
-        signUpDto.getPets().stream()
-                .filter(petDto -> petDto.getName() != null && petDto.getPetType() != null)
-                .forEach(pet -> {
-                    PetType petType = petTypeRepository.findByName(pet.getPetType().name())
-                                    .orElse(petTypeRepository.save(new PetType(pet.getPetType().name())));
-            petRepository.save(new Pet(petOwner, pet.getAge(), petType, pet.getName(), pet.getDescription()));
+            signUpDto.getPets().stream()
+                    .filter(petDto -> petDto.getName() != null && petDto.getPetType() != null)
+                    .forEach(pet -> {
+                                PetType petType = petTypeRepository.findByName(pet.getPetType().name()).orElse(null);
+                                if (petType == null) {
+                                    petType = petTypeRepository.save(new PetType(pet.getPetType().name()));
+                                }
+                                petRepository.save(new Pet(petOwner, pet.getBirthDate(), petType, pet.getName(), pet.getDescription()));
 
-                }
-                );
+                            }
+                    );
+        }
     }
 
     private City getCityOrAddNew(String city, Country country) {

@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -61,7 +61,7 @@ class PetServiceImplTest {
     void getAllPetsByUserWhenPetsFound() {
         // given
         var user = new User();
-        var pet = new Pet(1L, BigDecimal.ONE, "name1", "description1", new PetOwner(), new PetType("DOG"), new ArrayList<>());
+        var pet = new Pet(1L, LocalDate.now(), "name1", "description1", new PetOwner(), new PetType("DOG"), new ArrayList<>(), new ArrayList<>());
         var petDto = pet.toDto();
         given(petRepository.findAllByUser(user)).willReturn(Set.of(pet));
 
@@ -89,7 +89,7 @@ class PetServiceImplTest {
     void getAllPetsWhenPetsFound() {
         // given
         var user = new User();
-        var pet = new Pet(1L, BigDecimal.ONE, "name1", "description1", new PetOwner(), new PetType("DOG"), new ArrayList<>());
+        var pet = new Pet(1L, LocalDate.now(), "name1", "description1", new PetOwner(), new PetType("DOG"), new ArrayList<>(), new ArrayList<>());
         var petDto = pet.toDto();
         given(petRepository.findAll()).willReturn(List.of(pet));
 

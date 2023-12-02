@@ -1,6 +1,7 @@
 package com.pri.petcationbackend.model;
 
 import com.pri.petcationbackend.web.dto.HotelRoomDto;
+import com.pri.petcationbackend.web.dto.PetTypeEnum;
 import com.pri.petcationbackend.web.dto.RoomDto;
 import com.pri.petcationbackend.web.dto.RoomHotelDto;
 import jakarta.persistence.*;
@@ -11,8 +12,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name="rooms")
@@ -33,25 +32,23 @@ public class Room {
     @JoinColumn(name = "Hotel_id")
     private Hotel hotel;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "Pet_type_id")
+    private PetType petType;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "rooms_pet_types",
+            name = "reservations_rooms",
             joinColumns = @JoinColumn(name = "Room_id"),
-            inverseJoinColumns = @JoinColumn(name = "Pet_type_id"))
-    private Set<PetType> petTypes;
-
-    @OneToMany(mappedBy = "room")
+            inverseJoinColumns = @JoinColumn(name = "Reservation_id"))
     private List<Reservation> reservations;
-
-    @OneToMany(mappedBy = "room")
-    private List<Reservation> reservation;
 
     public RoomDto toDto() {
         RoomDto roomDto = new RoomDto();
         roomDto.setId(roomId);
         roomDto.setPrice(price);
         roomDto.setHotelDto(hotel != null ? new HotelRoomDto(hotel) : null);
-        roomDto.setPetTypes(petTypes != null ? petTypes.stream().map(PetType::getName).collect(Collectors.toSet()) : null);
+        roomDto.setPetType(petType != null ? PetTypeEnum.valueOf(petType.getName()) : null);
         return roomDto;
     }
 
@@ -59,7 +56,7 @@ public class Room {
         RoomHotelDto roomDto = new RoomHotelDto();
         roomDto.setId(roomId);
         roomDto.setPrice(price);
-        roomDto.setPetTypes(petTypes != null ? petTypes.stream().map(PetType::getName).collect(Collectors.toSet()) : null);
+        roomDto.setPetType(petType != null ? PetTypeEnum.valueOf(petType.getName()) : null);
         return roomDto;
     }
 }

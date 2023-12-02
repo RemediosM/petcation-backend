@@ -8,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
-
 @Entity
 @Table(name="pet_types")
 @Getter
@@ -26,8 +24,6 @@ public class PetType {
     @NotEmpty
     @Column(name = "Name")
     private String name;
-    @ManyToMany(mappedBy = "petTypes")
-    Set<Room> rooms;
 
     public PetType(String name) {
         this.name = name;

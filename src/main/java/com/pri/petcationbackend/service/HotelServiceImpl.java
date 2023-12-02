@@ -1,26 +1,21 @@
 package com.pri.petcationbackend.service;
 
 import com.pri.petcationbackend.dao.HotelRepository;
+import com.pri.petcationbackend.dao.PetRepository;
 import com.pri.petcationbackend.dao.PetTypeRepository;
 import com.pri.petcationbackend.dao.ReservationRepository;
-import com.pri.petcationbackend.model.Hotel;
-import com.pri.petcationbackend.model.Reservation;
-import com.pri.petcationbackend.model.Room;
+import com.pri.petcationbackend.model.*;
 import com.pri.petcationbackend.utils.DistanceUtils;
-import com.pri.petcationbackend.web.dto.HotelDetailsDto;
-import com.pri.petcationbackend.web.dto.HotelDto;
-import com.pri.petcationbackend.web.dto.HotelRequestDto;
-import com.pri.petcationbackend.web.dto.PetTypeQtyDto;
+import com.pri.petcationbackend.web.dto.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -30,6 +25,7 @@ public class HotelServiceImpl implements HotelService {
     private final HotelRepository hotelRepository;
     private final ReservationRepository reservationRepository;
     private final PetTypeRepository petTypeRepository;
+    private final PetRepository petRepository;
 
     @Override
     public List<HotelDto> getAllHotels() {
@@ -66,21 +62,19 @@ public class HotelServiceImpl implements HotelService {
             return rooms.stream()
                     .anyMatch(room -> isPeriodFree(from, to, room.getReservations()));
         }
-        List<Boolean> roomsAvailability = new ArrayList<>();
-        petTypeQtyDtoList.forEach(petTypeQtyDto -> {
+        for (PetTypeQtyDto petTypeQtyDto : petTypeQtyDtoList)
+        {
             List<Room> filteredRooms = rooms.stream()
-                    .filter(room -> (petTypeQtyDto.getPetType() == null || room.getPetTypes().stream().anyMatch(type -> petTypeQtyDto.getPetType().equals(type.getName())))
-                            && isPeriodFree(from, to, room.getReservation()))
+                    .filter(room -> (petTypeQtyDto.getPetType() == null || room.getPetType().getName().equals(petTypeQtyDto.getPetType()))
+                            && isPeriodFree(from, to, room.getReservations()))
                     .toList();
             if (filteredRooms.size() >= petTypeQtyDto.getQty()) {
                 rooms.removeAll(filteredRooms);
-                roomsAvailability.add(true);
             } else {
-                roomsAvailability.add(false);
+                return false;
             }
-        });
-        return !roomsAvailability.contains(false);
-
+        }
+        return true;
     }
 
     private Map<LocalDate, List<PetTypeQtyDto>> getFreeRoomsList(List<Room> rooms, LocalDate from, LocalDate to) {
@@ -90,8 +84,8 @@ public class HotelServiceImpl implements HotelService {
             List<PetTypeQtyDto> petTypeQtyDtoList = new ArrayList<>();
             petTypeRepository.findAll().forEach(petType -> {
                 List<Room> filteredRooms = rooms.stream()
-                        .filter(room -> room.getPetTypes().stream().anyMatch(type -> petType.getName().equals(type.getName()))
-                                && isDayFree(localDate, room.getReservation()))
+                        .filter(room -> room.getPetType().getName().equals(petType.getName())
+                                && isDayFree(localDate, room.getReservations()))
                         .toList();
                 if(!filteredRooms.isEmpty()) {
                     petTypeQtyDtoList.add(new PetTypeQtyDto(petType.getName(), (long) filteredRooms.size(), filteredRooms.get(0).getPrice()));
@@ -105,12 +99,41 @@ public class HotelServiceImpl implements HotelService {
         return dateListMap;
     }
 
+    @Override
+    public List<Room> checkAvailableRooms(ReservationRequestDto reservationDto) {
+        Optional<Hotel> hotel = reservationDto.getHotelId() != null ? hotelRepository.findById(reservationDto.getHotelId()) : Optional.empty();
+        Map<PetType, Long> petTypeQtyMap = CollectionUtils.isEmpty(reservationDto.getPetIds())
+                ? new HashMap<>()
+                : petRepository.findAllById(reservationDto.getPetIds()).stream()
+                .map(Pet::getPetType)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        List<Room> availableRooms = new ArrayList<>();
+        List<Room> rooms = hotel.isPresent() ? hotel.get().getRooms() : new ArrayList<>();
+        if(reservationDto.getFrom() != null && reservationDto.getTo() != null) {
+            for (Map.Entry<PetType, Long> entry : petTypeQtyMap.entrySet()) {
+                List<Room> filteredRooms = rooms.stream()
+                        .filter(room -> (entry.getKey() == null || room.getPetType().getName().equals(entry.getKey().getName()))
+                                && isPeriodFree(reservationDto.getFrom(), reservationDto.getFrom(), room.getReservations()))
+                        .toList();
+                if (filteredRooms.size() >= entry.getValue()) {
+                    rooms.removeAll(filteredRooms);
+                    availableRooms.addAll(filteredRooms);
+                } else {
+                    availableRooms.clear();
+                    break;
+                }
+            }
+        }
+        return availableRooms;
+    }
+
     private List<PetTypeQtyDto> getPetTypeQtyList(List<Room> rooms) {
 
             List<PetTypeQtyDto> petTypeQtyDtoList = new ArrayList<>();
             petTypeRepository.findAll().forEach(petType -> {
                 List<Room> filteredRooms = rooms.stream()
-                        .filter(room -> room.getPetTypes().stream().anyMatch(type -> petType.getName().equals(type.getName())))
+                        .filter(room -> room.getPetType().getName().equals(petType.getName()))
                         .toList();
                 if(!filteredRooms.isEmpty()) {
                     petTypeQtyDtoList.add(new PetTypeQtyDto(petType.getName(), (long) filteredRooms.size(), filteredRooms.get(0).getPrice()));
@@ -123,6 +146,7 @@ public class HotelServiceImpl implements HotelService {
     private boolean isPeriodFree(LocalDate from, LocalDate to, List<Reservation> reservations) {
         return reservations.isEmpty()
                 || reservations.stream()
+                .filter(Reservation::isAccepted)
                 .anyMatch(reservation -> (reservation.getFrom().isBefore(from) || reservation.getFrom().isAfter(to))
                         && (reservation.getTo().isBefore(from) || reservation.getTo().isAfter(to)));
     }
@@ -130,6 +154,7 @@ public class HotelServiceImpl implements HotelService {
     private boolean isDayFree(LocalDate date, List<Reservation> reservations) {
         return reservations.isEmpty()
                 || reservations.stream()
+                .filter(Reservation::isAccepted)
                 .anyMatch(reservation -> !((date.isAfter(reservation.getFrom()) || date.isEqual(reservation.getFrom()))
                         && date.isBefore(reservation.getTo())) || date.isEqual(reservation.getTo()));
     }

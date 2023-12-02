@@ -1,13 +1,14 @@
 package com.pri.petcationbackend.model;
 
 import com.pri.petcationbackend.web.dto.ReservationResponseDto;
+import com.pri.petcationbackend.web.dto.ReservationStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Entity
 @Table(name="reservations")
@@ -30,30 +31,48 @@ public class Reservation {
     private LocalDate to;
     @Column(name = "Trial")
     private Boolean isTrial;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "Room_id")
-    private Room room;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "Pet_id")
-    private Pet pet;
+
+    @Column(name = "status")
+    private Integer status;
+    @ManyToMany(mappedBy = "reservations")
+    private List<Room> rooms;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "reservations_pets",
+            joinColumns = @JoinColumn(name = "Pet_id"),
+            inverseJoinColumns = @JoinColumn(name = "Reservation_id"))
+    private List<Pet> pets;
 
     public ReservationResponseDto toDto() {
         return ReservationResponseDto.builder()
                 .id(reservationId)
                 .from(from)
                 .to(to)
-                .price(calculatePrice())
+                .status(ReservationStatusEnum.getFromCode(status))
+                .totalPrice(calculatePrice())
                 .isTrial(isTrial)
-                .roomDto(room != null ? room.toDto() : null)
-                .petDto(pet != null ? pet.toDto() : null)
+                .roomDto(rooms != null ? rooms.stream().map(Room::toRoomHotelDto).toList() : null)
+                .petDto(pets != null ? pets.stream().map(Pet::toDto).toList() : null)
                 .build();
+    }
+
+    private BigDecimal total(Room room, long dateDiff) {
+        return room != null && room.getPrice() != null
+                ? room.getPrice().multiply(BigDecimal.valueOf(dateDiff))
+                : BigDecimal.ZERO;
     }
 
     private BigDecimal calculatePrice() {
         long dateDiff = ChronoUnit.DAYS.between(to, from);
-        if(dateDiff > 0 && room != null && room.getPrice() != null) {
-            return room.getPrice().multiply(BigDecimal.valueOf(dateDiff)).setScale(2, RoundingMode.HALF_UP);
+        if(dateDiff > 0 && rooms != null) {
+            return rooms.stream()
+                    .map(room -> total(room, dateDiff))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
-        return null;
+        return BigDecimal.ZERO;
+    }
+
+    public boolean isAccepted() {
+        return ReservationStatusEnum.ACCEPTED.getCode().equals(this.status);
     }
 }

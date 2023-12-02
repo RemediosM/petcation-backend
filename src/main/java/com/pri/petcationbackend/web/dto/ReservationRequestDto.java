@@ -14,7 +14,6 @@ public class ReservationRequestDto {
 
     private LocalDate from;
     private LocalDate to;
-    private Boolean isTrial;
-    private List<PetRoomDto> petRoomDtos;
-    private Long roomId;
+    private List<Long> petIds;
+    private Long hotelId;
 }

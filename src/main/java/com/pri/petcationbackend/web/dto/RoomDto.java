@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -17,5 +16,5 @@ public class RoomDto {
     private Long id;
     private BigDecimal price;
     private HotelRoomDto hotelDto;
-    private Set<String> petTypes;
+    private PetTypeEnum petType;
 }
