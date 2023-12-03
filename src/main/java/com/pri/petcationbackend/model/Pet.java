@@ -24,7 +24,7 @@ public class Pet {
     @Column(name = "Pet_id")
     private Long petId;
 
-    @Column(name = "birth_date")
+    @Column(name = "Birth_date")
     private LocalDate birthDate;
 
     @Column(name = "Name")

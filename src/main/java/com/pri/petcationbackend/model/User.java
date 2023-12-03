@@ -55,6 +55,6 @@ public class User {
     }
 
     @ManyToOne
-    @JoinColumn(name="Address_id", nullable=false)
+    @JoinColumn(name="Address_id")
     private Address address;
 }

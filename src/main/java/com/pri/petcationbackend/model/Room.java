@@ -36,11 +36,7 @@ public class Room {
     @JoinColumn(name = "Pet_type_id")
     private PetType petType;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "reservations_rooms",
-            joinColumns = @JoinColumn(name = "Room_id"),
-            inverseJoinColumns = @JoinColumn(name = "Reservation_id"))
+    @ManyToMany(mappedBy = "rooms")
     private List<Reservation> reservations;
 
     public RoomDto toDto() {

@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerNewUserAccount(SignUpDto signUpDto)  {
-        Address address = addressRepository.findById(8L).orElse(null);
+        Address address = null;
         AddressDto addressDto = signUpDto.getAddressDto();
 
         if(addressDto != null && StringUtils.isNotEmpty(addressDto.getCountry()) && StringUtils.isNotEmpty(addressDto.getCity())

@@ -77,6 +77,9 @@ public class SecurityConfig {
                                 .requestMatchers("/reservation").authenticated()
                                 .requestMatchers("/modifyUser").authenticated()
                                 .requestMatchers("/changePassword").authenticated()
+                                .requestMatchers("/rejectReservation").authenticated()
+                                .requestMatchers("/currentReservations").authenticated()
+                                .requestMatchers("/allReservations").authenticated()
                                 .requestMatchers("/**").permitAll()
                 )
                 .sessionManagement(session -> session

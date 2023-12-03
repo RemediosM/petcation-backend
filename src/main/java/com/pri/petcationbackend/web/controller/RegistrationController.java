@@ -41,9 +41,20 @@ public class RegistrationController {
 
         String email = authentication.getName();
         User user = new User(email,"");
+        User user2 = userService.findByEmail(email);
+        boolean isHotel = user2.getRoles().stream().anyMatch(role -> "ROLE_HOTEL".equals(role.getName()));
         String token = jwtUtil.createToken(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        StringBuilder sb = new StringBuilder("Role: ");
+        if(isHotel) {
+            sb.append("hotel");
+        } else {
+            sb.append("user");
+        }
+        sb.append("\n");
+        sb.append("token: ");
+        sb.append(token);
+        return new ResponseEntity<>(sb.toString(), HttpStatus.OK);
     }
 
     @PostMapping("/signup")

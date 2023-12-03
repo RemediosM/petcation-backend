@@ -18,7 +18,7 @@ public class ReservationResponseDto {
     private LocalDate to;
     private Boolean isTrial;
     private ReservationStatusEnum status;
-    private List<PetDto> petDto;
-    private List<RoomHotelDto> roomDto;
+    private List<PetDto> petDtos;
+    private List<RoomHotelDto> roomDtos;
     private BigDecimal totalPrice;
 }
