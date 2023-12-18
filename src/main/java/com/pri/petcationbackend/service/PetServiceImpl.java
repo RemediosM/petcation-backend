@@ -45,10 +45,13 @@ public class PetServiceImpl implements PetService{
         if(currentUser != null) {
             petOwnerRepository.findByUser(currentUser)
                     .ifPresent(petOwner -> {
-                        PetType petType = petTypeRepository.findByName(petDto.getPetType().name())
-                                .orElse(petTypeRepository.save(new PetType(petDto.getPetType().name())));
-
-                        petRepository.save(new Pet(petOwner, petType, petDto));
+                        PetType petType = petTypeRepository.findByName(petDto.getPetType().name()).orElse(null);
+                        if(petType != null)
+                        {
+                            petRepository.save(new Pet(petOwner, petType, petDto));
+                        } else {
+                            petRepository.save(new Pet(petOwner, petTypeRepository.save(new PetType(petDto.getPetType().name())), petDto));
+                        }
                     });
 
         }
@@ -57,6 +60,6 @@ public class PetServiceImpl implements PetService{
 
     @Override
     public void delete(Long id) {
-        petRepository.deleteById(id);
+        petRepository.findById(id).ifPresent(p -> petRepository.deleteById(id));
     }
 }

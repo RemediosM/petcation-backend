@@ -34,11 +34,11 @@ public class Pet {
     private String description;
 
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "Pet_owner_id")
     private PetOwner petOwner;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "Pet_type_id")
     private PetType petType;
 
