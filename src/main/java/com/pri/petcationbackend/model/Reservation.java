@@ -83,6 +83,7 @@ public class Reservation {
     }
 
     public boolean isAccepted() {
-        return ReservationStatusEnum.ACCEPTED.getCode().equals(this.status);
+        return ReservationStatusEnum.ACCEPTED.getCode().equals(this.status)
+                || ReservationStatusEnum.PENDING.getCode().equals(this.status);
     }
 }

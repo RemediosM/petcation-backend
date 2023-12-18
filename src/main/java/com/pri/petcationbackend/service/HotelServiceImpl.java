@@ -36,7 +36,9 @@ public class HotelServiceImpl implements HotelService {
 
     public List<HotelDto> getHotels(HotelRequestDto hotelRequestDto) {
         return hotelRepository.findAllActiveHotels().stream()
-                .filter(hotel -> equalsNullOrZero(hotelRequestDto.getLat()) || equalsNullOrZero(hotelRequestDto.getLon()) || DistanceUtils.isTwoPointsInMaxDistance(hotelRequestDto.getMaxDistance(), hotelRequestDto.getLat(), hotelRequestDto.getLon(), hotel.getAddress().getLatitude(), hotel.getAddress().getLongitude()))
+                .filter(hotel -> equalsNullOrZero(hotelRequestDto.getLat()) || equalsNullOrZero(hotelRequestDto.getLon())
+                        || DistanceUtils.isTwoPointsInMaxDistance(hotelRequestDto.getMaxDistance(), hotelRequestDto.getLat(),
+                        hotelRequestDto.getLon(), hotel.getAddress().getLatitude(), hotel.getAddress().getLongitude()))
                 .filter(hotel -> isRoomVacancyWithPetType(hotel.getRooms(), hotelRequestDto.getFrom(), hotelRequestDto.getTo(), hotelRequestDto.getPetTypeQtyDtoList()))
                 .map(Hotel::toDto)
                 .toList();
@@ -68,8 +70,11 @@ public class HotelServiceImpl implements HotelService {
                     .filter(room -> (petTypeQtyDto.getPetType() == null || room.getPetType().getName().equals(petTypeQtyDto.getPetType()))
                             && isPeriodFree(from, to, room.getReservations()))
                     .toList();
-            if (filteredRooms.size() >= petTypeQtyDto.getQty()) {
-                rooms.removeAll(filteredRooms);
+            Long qty = petTypeQtyDto.getQty();
+            if (qty == null || filteredRooms.size() >= qty) {
+                if(qty != null && qty > 0) {
+                    rooms.removeAll(filteredRooms);
+                }
             } else {
                 return false;
             }
