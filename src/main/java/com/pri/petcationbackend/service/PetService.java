@@ -1,16 +1,20 @@
 package com.pri.petcationbackend.service;
 
-import com.pri.petcationbackend.web.dto.PetDto;
 import com.pri.petcationbackend.model.User;
+import com.pri.petcationbackend.web.dto.PetDto;
+import com.pri.petcationbackend.web.dto.PetRateRequestDto;
+import com.pri.petcationbackend.web.dto.PetResponseDto;
 
 import java.util.List;
 
 public interface PetService {
-    List<PetDto> getAllPetsByUser(User user);
+    List<PetResponseDto> getAllPetsByUser(User user);
 
-    List<PetDto> getAllPets();
+    List<PetResponseDto> getAllPets();
 
-    PetDto addModifyPet(PetDto petDto, User currentUser);
+    void addModifyPet(PetDto petDto, User currentUser);
 
     void delete(Long id);
+
+    void addPetRate(PetRateRequestDto petRateRequestDto, User currentUser);
 }
