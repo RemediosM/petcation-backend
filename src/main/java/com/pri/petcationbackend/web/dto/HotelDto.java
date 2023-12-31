@@ -2,6 +2,7 @@ package com.pri.petcationbackend.web.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -17,4 +18,5 @@ public class HotelDto {
     private List<HotelsImageDto> images;
     private AddressDto addressDto;
     private String description;
+    private BigDecimal averageRate;
 }

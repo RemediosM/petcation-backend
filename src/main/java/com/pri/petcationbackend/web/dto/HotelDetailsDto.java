@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ public class HotelDetailsDto {
     private String description;
     private AddressDto addressDto;
     private Boolean isAnyReservation;
+    private BigDecimal averageRate;
+    private List<HotelRateDto> rates;
     List<PetTypeQtyDto> allAvailableRoomsByPetType;
     Map<LocalDate, List<PetTypeQtyDto>> freeDatesList;
 }

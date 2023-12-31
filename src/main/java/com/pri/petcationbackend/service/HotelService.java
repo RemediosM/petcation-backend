@@ -1,10 +1,8 @@
 package com.pri.petcationbackend.service;
 
 import com.pri.petcationbackend.model.Room;
-import com.pri.petcationbackend.web.dto.HotelDetailsDto;
-import com.pri.petcationbackend.web.dto.HotelDto;
-import com.pri.petcationbackend.web.dto.HotelRequestDto;
-import com.pri.petcationbackend.web.dto.ReservationRequestDto;
+import com.pri.petcationbackend.model.User;
+import com.pri.petcationbackend.web.dto.*;
 
 import java.util.List;
 
@@ -15,4 +13,6 @@ public interface HotelService {
     HotelDetailsDto getHotelById(Long id);
 
     List<Room> checkAvailableRooms(ReservationRequestDto reservationDto);
+
+    void addHotelRate(HotelRateRequestDto hotelRateRequestDto, User currentUser);
 }

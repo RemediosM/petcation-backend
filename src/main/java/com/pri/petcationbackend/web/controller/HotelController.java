@@ -1,19 +1,21 @@
 package com.pri.petcationbackend.web.controller;
 
-import com.pri.petcationbackend.dao.ReservationRepository;
 import com.pri.petcationbackend.dao.RoomRepository;
 import com.pri.petcationbackend.model.Room;
+import com.pri.petcationbackend.model.User;
 import com.pri.petcationbackend.service.HotelService;
-import com.pri.petcationbackend.service.ReservationService;
-import com.pri.petcationbackend.web.dto.HotelDetailsDto;
-import com.pri.petcationbackend.web.dto.HotelDto;
-import com.pri.petcationbackend.web.dto.HotelRequestDto;
-import com.pri.petcationbackend.web.dto.RoomDto;
+import com.pri.petcationbackend.service.UserService;
+import com.pri.petcationbackend.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -23,8 +25,7 @@ import java.util.List;
 public class HotelController {
 
     private final RoomRepository roomRepository;
-    private final ReservationRepository reservationRepository;
-    private final ReservationService reservationService;
+    private final UserService userService;
     private final HotelService hotelService;
 
 
@@ -54,6 +55,26 @@ public class HotelController {
     @Operation(summary = "Get room by id.")
     public RoomDto getRoomById(@RequestParam(value = "id") Long id) {
         return roomRepository.findById(id).stream().map(Room::toDto).findAny().orElse(null);
+    }
+
+    @PostMapping("/addHotelRate")
+    @Operation(summary = "Add rate for horel.")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<String> addHotelRate(@RequestBody @Valid HotelRateRequestDto hotelRateRequestDto) {
+        User user = userService.getCurrentUser();
+        if(user.getRoles().stream().anyMatch(role -> "ROLE_HOTEL".equals(role.getName()))){
+            return new ResponseEntity<>("Only pet owner can add rate for hotel", HttpStatus.BAD_REQUEST);
+        }
+
+        if(hotelRateRequestDto == null || hotelRateRequestDto.getRate() == null || BigDecimal.ZERO.equals(hotelRateRequestDto.getRate()))
+            return new ResponseEntity<>("Rate is empty!", HttpStatus.BAD_REQUEST);
+
+        if(hotelRateRequestDto.getHotelId() == null)
+            return new ResponseEntity<>("Hotel is empty!", HttpStatus.BAD_REQUEST);
+
+        hotelService.addHotelRate(hotelRateRequestDto, userService.getCurrentUser());
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

@@ -1,9 +1,6 @@
 package com.pri.petcationbackend.service;
 
-import com.pri.petcationbackend.dao.HotelRepository;
-import com.pri.petcationbackend.dao.PetRepository;
-import com.pri.petcationbackend.dao.PetTypeRepository;
-import com.pri.petcationbackend.dao.ReservationRepository;
+import com.pri.petcationbackend.dao.*;
 import com.pri.petcationbackend.model.*;
 import com.pri.petcationbackend.utils.DistanceUtils;
 import com.pri.petcationbackend.web.dto.*;
@@ -12,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -26,11 +25,16 @@ public class HotelServiceImpl implements HotelService {
     private final ReservationRepository reservationRepository;
     private final PetTypeRepository petTypeRepository;
     private final PetRepository petRepository;
+    private final HotelRateRepository hotelRateRepository;
+    private final PetOwnerRepository petOwnerRepository;
 
     @Override
     public List<HotelDto> getAllHotels() {
         return hotelRepository.findAllActiveHotels().stream()
-                .map(Hotel::toDto)
+                .map(hotel -> {
+                    HotelDto hotelDto = hotel.toDto();
+                    return setAvgRate(hotelDto);
+                })
                 .toList();
     }
 
@@ -40,7 +44,10 @@ public class HotelServiceImpl implements HotelService {
                         || DistanceUtils.isTwoPointsInMaxDistance(hotelRequestDto.getMaxDistance(), hotelRequestDto.getLat(),
                         hotelRequestDto.getLon(), hotel.getAddress().getLatitude(), hotel.getAddress().getLongitude()))
                 .filter(hotel -> isRoomVacancyWithPetType(hotel.getRooms(), hotelRequestDto.getFrom(), hotelRequestDto.getTo(), hotelRequestDto.getPetTypeQtyDtoList()))
-                .map(Hotel::toDto)
+                .map(hotel -> {
+                    HotelDto hotelDto = hotel.toDto();
+                    return setAvgRate(hotelDto);
+                })
                 .toList();
     }
 
@@ -52,8 +59,14 @@ public class HotelServiceImpl implements HotelService {
             LocalDate from = LocalDate.now();
             LocalDate to = reservationRepository.findLastReservationForHotel(id);
             boolean isAnyReservation = to != null;
+            List<HotelRate> rates = hotelRateRepository.findAllByHotel(hotel);
+            OptionalDouble avgRate = rates.stream()
+                    .mapToDouble(HotelRate::getRate)
+                    .average();
             return new HotelDetailsDto(hotel.getHotelId(), hotel.getName(), hotel.getDescription(), hotel.getAddress().toDto(),
-                    isAnyReservation, getPetTypeQtyList(hotel.getRooms()), isAnyReservation ? getFreeRoomsList(hotel.getRooms(), from, to) : null);
+                    isAnyReservation, avgRate.isPresent() ? BigDecimal.valueOf(avgRate.getAsDouble()).setScale(2, RoundingMode.HALF_UP) : null,
+                    rates.stream().map(HotelRate::toDto).toList(), getPetTypeQtyList(hotel.getRooms()),
+                    isAnyReservation ? getFreeRoomsList(hotel.getRooms(), from, to) : null);
         }
         return null;
     }
@@ -80,6 +93,14 @@ public class HotelServiceImpl implements HotelService {
             }
         }
         return true;
+    }
+
+    private HotelDto setAvgRate(HotelDto hotelDto) {
+        Double avgRate = hotelRateRepository.getAverageRateForHotel(hotelDto.getId());
+        if(!avgRate.isNaN()) {
+            hotelDto.setAverageRate(BigDecimal.valueOf(avgRate).setScale(2, RoundingMode.HALF_UP));
+        }
+        return hotelDto;
     }
 
     private Map<LocalDate, List<PetTypeQtyDto>> getFreeRoomsList(List<Room> rooms, LocalDate from, LocalDate to) {
@@ -131,6 +152,19 @@ public class HotelServiceImpl implements HotelService {
             }
         }
         return availableRooms;
+    }
+
+    @Override
+    public void addHotelRate(HotelRateRequestDto hotelRateRequestDto, User currentUser) {
+        if(currentUser != null) {
+            petOwnerRepository.findByUser(currentUser)
+                    .ifPresent(petOwner -> hotelRateRepository.save(HotelRate.builder()
+                            .hotel(hotelRepository.findById(hotelRateRequestDto.getHotelId()).orElse(null))
+                            .petOwner(petOwner)
+                            .rate(hotelRateRequestDto.getRate().doubleValue())
+                            .comment(hotelRateRequestDto.getComment())
+                            .build()));
+        }
     }
 
     private List<PetTypeQtyDto> getPetTypeQtyList(List<Room> rooms) {
