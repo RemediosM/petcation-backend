@@ -97,15 +97,30 @@ public class ReservationController {
         return reservationService.getAllReservationsForUser();
     }
 
-//    @GetMapping("/getConflictedReservations")
-//    @SecurityRequirement(name = "Bearer Authentication")
-//    @Operation(summary = "Get all reservations for user.")
-//    public List<ReservationResponseDto> getConflictedReservations(@RequestParam(value = "id") Long id) {
-//        return reservationService.getConflictedReservations(id);
-//    }
+    @GetMapping("/getConflictedReservations")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Get conflicted reservations by reservation id.")
+    public ResponseEntity<List<ReservationResponseDto>> getConflictedReservations(@RequestParam(value = "id") Long id) {
+        User user = userService.getCurrentUser();
+        if(user.getRoles().stream().anyMatch(role -> "ROLE_USER".equals(role.getName()))){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        Reservation reservation = reservationService.findById(id).orElse(null);
+        if(reservation == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if(!ReservationStatusEnum.PENDING.getCode().equals(reservation.getStatus())){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        List<Room> availableRooms = hotelService.checkAvailableRooms(new ReservationRequestDto(reservation));
+        if(CollectionUtils.isEmpty(availableRooms)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(reservationService.getConflictedReservations(reservation, availableRooms.size()), HttpStatus.OK);
+    }
 
     @PostMapping("/acceptReservation")
-    @SecurityRequirement(name = "Bearer Authentication")
+//    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Accept reservation.")
     public ResponseEntity<String> acceptReservation(@RequestParam(value = "id") Long id) {
         User user = userService.getCurrentUser();
@@ -119,7 +134,11 @@ public class ReservationController {
         if(!ReservationStatusEnum.PENDING.getCode().equals(reservation.getStatus())){
             return new ResponseEntity<>("The reservation does not have the status Pending", HttpStatus.BAD_REQUEST);
         }
-        reservationService.acceptReservation(reservation);
+        List<Room> availableRooms = hotelService.checkAvailableRooms(new ReservationRequestDto(reservation));
+        if(CollectionUtils.isEmpty(availableRooms)) {
+            return new ResponseEntity<>("There are no available rooms!", HttpStatus.BAD_REQUEST);
+        }
+        reservationService.acceptReservation(reservation, availableRooms.size());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -2,8 +2,6 @@ package com.pri.petcationbackend.web.dto;
 
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,6 +14,4 @@ public class PetOwnerDto {
     private String lastName;
     private String email;
     private AddressDto addressDto;
-    private List<PetDto> pets;
-
 }

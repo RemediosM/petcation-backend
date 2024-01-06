@@ -1,12 +1,8 @@
 package com.pri.petcationbackend.service;
 
-import com.pri.petcationbackend.dao.HotelRepository;
 import com.pri.petcationbackend.dao.PetRepository;
 import com.pri.petcationbackend.dao.ReservationRepository;
-import com.pri.petcationbackend.model.Pet;
-import com.pri.petcationbackend.model.Reservation;
-import com.pri.petcationbackend.model.Room;
-import com.pri.petcationbackend.model.User;
+import com.pri.petcationbackend.model.*;
 import com.pri.petcationbackend.web.dto.ReservationRequestDto;
 import com.pri.petcationbackend.web.dto.ReservationResponseDto;
 import com.pri.petcationbackend.web.dto.ReservationStatusEnum;
@@ -15,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,7 +24,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final UserService userService;
     private final PetRepository petRepository;
 
-    private final HotelRepository hotelRepository;
+    private final HotelService hotelService;
 
     @Override
     public void addReservation(List<Room> availableRooms, ReservationRequestDto reservationRequestDto) {
@@ -102,18 +98,73 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void acceptReservation(Reservation reservation) {
+    public void acceptReservation(Reservation reservation, long availableRoomsSize) {
         reservation.setStatus(ReservationStatusEnum.ACCEPTED.getCode());
-        reservationRepository.save(reservation);
+        List<Reservation> reservationsToSave = new ArrayList<>();
+        findConflictedReservations(reservation, availableRoomsSize).forEach(res -> {
+            res.setStatus(ReservationStatusEnum.REJECTED.getCode());
+            reservationsToSave.add(res);
+        });
+        reservationsToSave.add(reservation);
+        reservationRepository.saveAll(reservationsToSave);
     }
 
-    //    @Override
-//    public List<ReservationResponseDto> getConflictedReservations(Long id) {
-//        Reservation reservation = reservationRepository.findById(id).orElse(null);
-//        List<Reservation> reservations = reservationRepository.findAllByHotelHotelId(reservation.getHotel().getHotelId());
-//        reservations.remove(reservation);
-//        Map<PetType, Long> petTypeQtyMap = reservation.getPets().stream()
-//                .map(Pet::getPetType)
-//                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-//    }
+    @Override
+    public List<ReservationResponseDto> getConflictedReservations(Reservation reservation, long availableRoomsSize) {
+        if (reservation == null) {
+            return Collections.emptyList();
+        }
+        Set<Reservation> conflictedReservations = findConflictedReservations(reservation, availableRoomsSize);
+        return conflictedReservations.stream().map(Reservation::toDto).sorted(Comparator.comparing(ReservationResponseDto::getFrom)).toList();
+    }
+
+    private Set<Reservation> findConflictedReservations(Reservation reservation, long availableRoomsSize) {
+        Long hotelId = reservation.getHotel().getHotelId();
+        List<Reservation> reservations = reservationRepository.findAllByHotelHotelId(hotelId);
+        reservations.remove(reservation);
+        Map<PetType, Long> petTypeQtyMap = reservation.getPets().stream()
+                .map(Pet::getPetType)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        Set<Reservation> conflictedReservations = new HashSet<>();
+        if(reservation.getFrom() != null && reservation.getTo() != null) {
+            int cnt = 0;
+            for (Reservation r: reservations) {
+
+                List<Room> roomList = r.getRooms();
+                List<Room> takenRooms = new ArrayList<>();
+                List<Room> rooms = new ArrayList<>();
+                for (Map.Entry<PetType, Long> entry : petTypeQtyMap.entrySet()) {
+
+                    List<Room> filteredRooms = roomList.stream()
+                            .filter(room -> (entry.getKey() == null || room.getPetType().getName().equals(entry.getKey().getName()))
+                                    && !isPeriodFree(reservation.getFrom(), reservation.getFrom(), r))
+                            .collect(Collectors.toList());
+                    long petTypeRoomsCount = r.getHotel().getRooms().stream().filter(room -> room.getPetType().equals(entry.getKey())).count();
+                    long diff = petTypeRoomsCount - filteredRooms.size() - cnt;
+                    cnt += filteredRooms.size();
+                    rooms.addAll(filteredRooms);
+                    if (diff <= entry.getValue()) {
+                        takenRooms.addAll(rooms);
+                    }
+                    filteredRooms.clear();
+                }
+                long diff = availableRoomsSize - reservation.getRooms().size();
+                if(diff < takenRooms.size()) {
+                    takenRooms.forEach(takenRoom ->
+                            conflictedReservations.addAll(takenRoom.getReservations().stream()
+                                    .filter(res -> !res.equals(reservation))
+                                    .filter(res -> !res.getStatus().equals(ReservationStatusEnum.ACCEPTED.getCode()))
+                                    .collect(Collectors.toSet())));
+                }
+            }
+        }
+        return conflictedReservations;
+    }
+
+    private static boolean isPeriodFree(LocalDate from, LocalDate to, Reservation reservation) {
+        return (!reservation.isAccepted() && !reservation.isPending())
+                || (reservation.getFrom().isBefore(from) || reservation.getFrom().isAfter(to))
+                        && (reservation.getTo().isBefore(from) || reservation.getTo().isAfter(to));
+    }
 }

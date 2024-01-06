@@ -97,7 +97,7 @@ public class HotelServiceImpl implements HotelService {
 
     private HotelDto setAvgRate(HotelDto hotelDto) {
         Double avgRate = hotelRateRepository.getAverageRateForHotel(hotelDto.getId());
-        if(!avgRate.isNaN()) {
+        if(avgRate != null && !avgRate.isNaN()) {
             hotelDto.setAverageRate(BigDecimal.valueOf(avgRate).setScale(2, RoundingMode.HALF_UP));
         }
         return hotelDto;
@@ -140,7 +140,7 @@ public class HotelServiceImpl implements HotelService {
             for (Map.Entry<PetType, Long> entry : petTypeQtyMap.entrySet()) {
                 List<Room> filteredRooms = rooms.stream()
                         .filter(room -> (entry.getKey() == null || room.getPetType().getName().equals(entry.getKey().getName()))
-                                && isPeriodFree(reservationDto.getFrom(), reservationDto.getFrom(), room.getReservations()))
+                                && isPeriodFree(reservationDto.getFrom(), reservationDto.getTo(), room.getReservations()))
                         .toList();
                 if (filteredRooms.size() >= entry.getValue()) {
                     rooms.removeAll(filteredRooms);
@@ -185,16 +185,19 @@ public class HotelServiceImpl implements HotelService {
     private boolean isPeriodFree(LocalDate from, LocalDate to, List<Reservation> reservations) {
         return reservations.isEmpty()
                 || reservations.stream()
-                .filter(Reservation::isAccepted)
-                .anyMatch(reservation -> (reservation.getFrom().isBefore(from) || reservation.getFrom().isAfter(to))
+                .noneMatch(Reservation::isAccepted)
+                || reservations.stream()
+                .anyMatch(reservation -> reservation.isAccepted() && (reservation.getFrom().isBefore(from) || reservation.getFrom().isAfter(to))
                         && (reservation.getTo().isBefore(from) || reservation.getTo().isAfter(to)));
     }
 
     private boolean isDayFree(LocalDate date, List<Reservation> reservations) {
         return reservations.isEmpty()
                 || reservations.stream()
+                .noneMatch(Reservation::isAccepted)
+                || reservations.stream()
                 .filter(Reservation::isAccepted)
-                .anyMatch(reservation -> !((date.isAfter(reservation.getFrom()) || date.isEqual(reservation.getFrom()))
+                .anyMatch(reservation -> reservation.isAccepted() && !((date.isAfter(reservation.getFrom()) || date.isEqual(reservation.getFrom()))
                         && date.isBefore(reservation.getTo())) || date.isEqual(reservation.getTo()));
     }
 

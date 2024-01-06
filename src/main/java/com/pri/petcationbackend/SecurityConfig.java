@@ -41,10 +41,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder noOpPasswordEncoder)
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder bCryptPasswordEncoder)
             throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(noOpPasswordEncoder);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
         return authenticationManagerBuilder.build();
     }
 
@@ -82,6 +82,7 @@ public class SecurityConfig {
                                 .requestMatchers("/allReservations").authenticated()
                                 .requestMatchers("/addHotelRate").authenticated()
                                 .requestMatchers("/addRate").authenticated()
+                                .requestMatchers("/getConflictedReservations").authenticated()
                                 .requestMatchers("/**").permitAll()
                 )
                 .sessionManagement(session -> session

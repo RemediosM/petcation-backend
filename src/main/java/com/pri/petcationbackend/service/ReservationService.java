@@ -21,7 +21,7 @@ public interface ReservationService {
 
     List<ReservationResponseDto> getAllReservationsForUser();
 
-    void acceptReservation(Reservation reservation);
+    void acceptReservation(Reservation reservation, long availableRoomsSize);
 
-//    List<ReservationResponseDto> getConflictedReservations(Long id);
+    List<ReservationResponseDto> getConflictedReservations(Reservation reservation, long availableRoomsSize);
 }
