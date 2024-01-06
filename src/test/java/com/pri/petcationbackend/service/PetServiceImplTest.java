@@ -1,12 +1,11 @@
 package com.pri.petcationbackend.service;
 
-import com.pri.petcationbackend.dao.PetOwnerRepository;
-import com.pri.petcationbackend.dao.PetRepository;
-import com.pri.petcationbackend.dao.PetTypeRepository;
+import com.pri.petcationbackend.dao.*;
 import com.pri.petcationbackend.model.Pet;
 import com.pri.petcationbackend.model.PetOwner;
 import com.pri.petcationbackend.model.PetType;
 import com.pri.petcationbackend.model.User;
+import com.pri.petcationbackend.web.dto.PetResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,10 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -31,6 +27,10 @@ class PetServiceImplTest {
     private PetOwnerRepository petOwnerRepository;
     @Mock
     private PetTypeRepository petTypeRepository;
+    @Mock
+    private PetRateRepository petRateRepository;
+    @Mock
+    private HotelRepository hotelRepository;
 
     @InjectMocks
     private PetServiceImpl petService;
@@ -62,7 +62,7 @@ class PetServiceImplTest {
         // given
         var user = new User();
         var pet = new Pet(1L, LocalDate.now(), "name1", "description1", new PetOwner(), new PetType("DOG"), new ArrayList<>(), new ArrayList<>());
-        var petDto = pet.toDto();
+        var petDto = new PetResponseDto(pet, Collections.emptyList());
         given(petRepository.findAllByUser(user)).willReturn(Set.of(pet));
 
         // when
@@ -90,7 +90,7 @@ class PetServiceImplTest {
         // given
         var user = new User();
         var pet = new Pet(1L, LocalDate.now(), "name1", "description1", new PetOwner(), new PetType("DOG"), new ArrayList<>(), new ArrayList<>());
-        var petDto = pet.toDto();
+        var petDto = new PetResponseDto(pet, Collections.emptyList());
         given(petRepository.findAll()).willReturn(List.of(pet));
 
         // when
