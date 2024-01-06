@@ -81,9 +81,6 @@ public class PetController {
         if(petRateRequestDto.getPetId() == null)
             return new ResponseEntity<>("Pet is empty!", HttpStatus.BAD_REQUEST);
 
-        if(petRateRequestDto.getRate().compareTo(BigDecimal.valueOf(5)) > 0 || petRateRequestDto.getRate().compareTo(BigDecimal.valueOf(1)) < 0)
-            return new ResponseEntity<>("Only rates in range from 1 to 5", HttpStatus.BAD_REQUEST);
-
         petService.addPetRate(petRateRequestDto, userService.getCurrentUser());
 
         return new ResponseEntity<>(HttpStatus.OK);
