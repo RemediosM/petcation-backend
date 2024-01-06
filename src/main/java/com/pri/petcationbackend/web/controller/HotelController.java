@@ -72,6 +72,9 @@ public class HotelController {
         if(hotelRateRequestDto.getHotelId() == null)
             return new ResponseEntity<>("Hotel is empty!", HttpStatus.BAD_REQUEST);
 
+        if(hotelRateRequestDto.getRate().compareTo(BigDecimal.valueOf(5)) > 0 || hotelRateRequestDto.getRate().compareTo(BigDecimal.valueOf(1)) < 0)
+            return new ResponseEntity<>("Only rates in range from 1 to 5", HttpStatus.BAD_REQUEST);
+
         hotelService.addHotelRate(hotelRateRequestDto, userService.getCurrentUser());
 
         return new ResponseEntity<>(HttpStatus.OK);
