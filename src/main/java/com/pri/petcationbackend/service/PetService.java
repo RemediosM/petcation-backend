@@ -1,5 +1,6 @@
 package com.pri.petcationbackend.service;
 
+import com.pri.petcationbackend.model.Pet;
 import com.pri.petcationbackend.model.User;
 import com.pri.petcationbackend.web.dto.PetDto;
 import com.pri.petcationbackend.web.dto.PetRateRequestDto;
@@ -17,4 +18,10 @@ public interface PetService {
     void delete(Long id);
 
     void addPetRate(PetRateRequestDto petRateRequestDto, User currentUser);
+    
+    Pet findPetById(Long id);
+
+    void addImagesForPet(Pet pet, List<String> imageUrls);
+
+    void deleteImage(Long imageId);
 }

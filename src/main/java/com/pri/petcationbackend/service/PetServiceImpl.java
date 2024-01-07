@@ -1,10 +1,7 @@
 package com.pri.petcationbackend.service;
 
 import com.pri.petcationbackend.dao.*;
-import com.pri.petcationbackend.model.Pet;
-import com.pri.petcationbackend.model.PetRate;
-import com.pri.petcationbackend.model.PetType;
-import com.pri.petcationbackend.model.User;
+import com.pri.petcationbackend.model.*;
 import com.pri.petcationbackend.web.dto.PetDto;
 import com.pri.petcationbackend.web.dto.PetRateRequestDto;
 import com.pri.petcationbackend.web.dto.PetResponseDto;
@@ -25,6 +22,8 @@ public class PetServiceImpl implements PetService{
     private final PetTypeRepository petTypeRepository;
     private final PetRateRepository petRateRepository;
     private final HotelRepository hotelRepository;
+    private final PetsImageRepository petsImageRepository;
+
     @Override
     public List<PetResponseDto> getAllPetsByUser(User user) {
         if (user == null) {
@@ -71,6 +70,28 @@ public class PetServiceImpl implements PetService{
                             .rate(petRateRequestDto.getRate().doubleValue())
                             .comment(petRateRequestDto.getComment())
                             .build()));
+        }
+    }
+
+    @Override
+    public Pet findPetById(Long id) {
+        if(id != null) {
+            return petRepository.findById(id).orElse(null);
+        }
+        return null;
+    }
+
+    @Override
+    public void addImagesForPet(Pet pet, List<String> imageUrls) {
+        List<PetsImage> newPetsImages = imageUrls.stream().map(image -> new PetsImage(image, pet))
+                .toList();
+        petsImageRepository.saveAll(newPetsImages);
+    }
+
+    @Override
+    public void deleteImage(Long imageId) {
+        if(imageId != null) {
+            petsImageRepository.deleteById(imageId);
         }
     }
 }

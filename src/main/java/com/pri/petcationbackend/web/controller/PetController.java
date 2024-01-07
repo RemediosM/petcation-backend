@@ -1,9 +1,11 @@
 package com.pri.petcationbackend.web.controller;
 
+import com.pri.petcationbackend.model.Pet;
 import com.pri.petcationbackend.model.User;
 import com.pri.petcationbackend.service.PetService;
 import com.pri.petcationbackend.service.UserService;
 import com.pri.petcationbackend.web.dto.PetDto;
+import com.pri.petcationbackend.web.dto.PetImagesDto;
 import com.pri.petcationbackend.web.dto.PetRateRequestDto;
 import com.pri.petcationbackend.web.dto.PetResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +59,37 @@ public class PetController {
         return new ResponseEntity<>(petDto.getId() != null
                 ? "Pet is modified successfully!"
                 : "Pet is added successfully!", HttpStatus.OK);
+    }
+
+    @PostMapping("/addImages")
+    @Operation(summary = "Add pets images.")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<String> addPetsImages(@RequestBody @Valid PetImagesDto petImagesDto) {
+
+
+        if(petImagesDto.getPetId() == null || CollectionUtils.isEmpty(petImagesDto.getImageUrls()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        User user = userService.getCurrentUser();
+        Pet pet = petService.findPetById(petImagesDto.getPetId());
+
+        if(user.getRoles().stream().anyMatch(role -> "ROLE_HOTEL".equals(role.getName())) || pet == null
+                || pet.getPetOwner() == null
+                || !user.equals(pet.getPetOwner().getUser())){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+
+        petService.addImagesForPet(pet, petImagesDto.getImageUrls());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteImage")
+    @Operation(summary = "Delete image.")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<String> deleteImage(@RequestParam(value = "imageId") Long imageId) {
+        petService.deleteImage(imageId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/deletePet")

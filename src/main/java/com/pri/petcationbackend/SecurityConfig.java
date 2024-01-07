@@ -83,6 +83,8 @@ public class SecurityConfig {
                                 .requestMatchers("/addHotelRate").authenticated()
                                 .requestMatchers("/addRate").authenticated()
                                 .requestMatchers("/getConflictedReservations").authenticated()
+                                .requestMatchers("/deleteImage").authenticated()
+                                .requestMatchers("/addImages").authenticated()
                                 .requestMatchers("/**").permitAll()
                 )
                 .sessionManagement(session -> session

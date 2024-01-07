@@ -25,6 +25,11 @@ public class PetsImage {
     @JoinColumn(name = "Pet_id")
     private Pet pet;
 
+    public PetsImage(String image, Pet pet) {
+        this.path = image;
+        this.pet = pet;
+    }
+
     public PetsImageDto toDto() {
         return new PetsImageDto(petsImageId, path);
     }
