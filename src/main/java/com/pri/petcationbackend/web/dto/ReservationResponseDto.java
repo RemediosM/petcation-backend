@@ -21,4 +21,5 @@ public class ReservationResponseDto {
     private List<PetDto> petDtos;
     private List<RoomHotelDto> roomDtos;
     private BigDecimal totalPrice;
+    private HotelDto hotelDto;
 }

@@ -65,6 +65,7 @@ public class Reservation {
                 .isTrial(isTrial)
                 .roomDtos(rooms != null ? rooms.stream().map(Room::toRoomHotelDto).toList() : null)
                 .petDtos(pets != null ? pets.stream().map(Pet::toDto).toList() : null)
+                .hotelDto(hotel != null ? hotel.toDto() : null)
                 .build();
     }
 
