@@ -25,4 +25,5 @@ public class HotelDetailsDto {
     private List<HotelRateDto> rates;
     List<PetTypeQtyDto> allAvailableRoomsByPetType;
     Map<LocalDate, List<PetTypeQtyDto>> freeDatesList;
+    private List<HotelsImageDto> images;
 }

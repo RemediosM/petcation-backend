@@ -1,9 +1,11 @@
 package com.pri.petcationbackend.web.controller;
 
 import com.pri.petcationbackend.dao.RoomRepository;
+import com.pri.petcationbackend.model.Reservation;
 import com.pri.petcationbackend.model.Room;
 import com.pri.petcationbackend.model.User;
 import com.pri.petcationbackend.service.HotelService;
+import com.pri.petcationbackend.service.ReservationService;
 import com.pri.petcationbackend.service.UserService;
 import com.pri.petcationbackend.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +30,7 @@ public class HotelController {
     private final RoomRepository roomRepository;
     private final UserService userService;
     private final HotelService hotelService;
+    private final ReservationService reservationService;
 
 
     @PostMapping(value = "/hotels")
@@ -74,6 +78,16 @@ public class HotelController {
 
         if(hotelRateRequestDto.getRate().compareTo(BigDecimal.valueOf(5)) > 0 || hotelRateRequestDto.getRate().compareTo(BigDecimal.valueOf(1)) < 0)
             return new ResponseEntity<>("Only rates in range from 1 to 5", HttpStatus.BAD_REQUEST);
+        Long reservationId = hotelRateRequestDto.getReservationId();
+        Reservation reservation = null;
+        if(reservationId != null) {
+            reservation = reservationService.findById(reservationId).orElse(null);
+        }
+        if(reservation == null || !ReservationStatusEnum.ACCEPTED.getCode().equals(reservation.getStatus()) || BooleanUtils.isTrue(reservation.getIsAnyRateForHotel())) {
+            return new ResponseEntity<>("There are no reservations to rate", HttpStatus.BAD_REQUEST);
+        }
+        reservation.setIsAnyRateForHotel(true);
+        reservationService.save(reservation);
 
         hotelService.addHotelRate(hotelRateRequestDto, userService.getCurrentUser());
 

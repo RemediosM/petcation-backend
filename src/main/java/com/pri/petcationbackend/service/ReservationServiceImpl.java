@@ -167,4 +167,11 @@ public class ReservationServiceImpl implements ReservationService {
                 || (reservation.getFrom().isBefore(from) || reservation.getFrom().isAfter(to))
                         && (reservation.getTo().isBefore(from) || reservation.getTo().isAfter(to));
     }
+
+    @Override
+    public void save(Reservation reservation) {
+        if(reservation != null) {
+            reservationRepository.save(reservation);
+        }
+    }
 }

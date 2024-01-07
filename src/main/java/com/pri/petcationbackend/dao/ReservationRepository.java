@@ -16,7 +16,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("select r from Reservation r left join r.petOwner p where p.user = :user")
     List<Reservation> findAllByPetOwnerUser(User user);
 
-    @Query("select max(r.to) from Reservation r left join r.rooms ro where ro.hotel.hotelId = :id")
+    @Query("select max(r.to) from Reservation r left join r.rooms ro where ro.hotel.hotelId = :id and r.status = 2")
     LocalDate findLastReservationForHotel(Long id);
 
     @Query(

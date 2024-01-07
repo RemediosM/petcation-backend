@@ -66,7 +66,7 @@ public class HotelServiceImpl implements HotelService {
             return new HotelDetailsDto(hotel.getHotelId(), hotel.getName(), hotel.getDescription(), hotel.getAddress().toDto(),
                     isAnyReservation, avgRate.isPresent() ? BigDecimal.valueOf(avgRate.getAsDouble()).setScale(2, RoundingMode.HALF_UP) : null,
                     rates.stream().map(HotelRate::toDto).toList(), getPetTypeQtyList(hotel.getRooms()),
-                    isAnyReservation ? getFreeRoomsList(hotel.getRooms(), from, to) : null);
+                    isAnyReservation ? getFreeRoomsList(hotel.getRooms(), from, to) : null, org.apache.commons.collections4.CollectionUtils.emptyIfNull(hotel.getImages()).stream().map(HotelsImage::toDto).toList());
         }
         return null;
     }

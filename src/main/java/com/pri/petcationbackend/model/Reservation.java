@@ -31,6 +31,8 @@ public class Reservation {
     private LocalDate to;
     @Column(name = "Trial")
     private Boolean isTrial;
+    @Column(name = "Hotel_rate")
+    private Boolean isAnyRateForHotel;
     @Column(name = "Status")
     private Integer status;
     @ManyToOne(cascade = CascadeType.ALL)

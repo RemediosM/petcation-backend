@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 public class HotelRateRequestDto {
 
     private Long hotelId;
+    private Long reservationId;
     private BigDecimal rate;
     private String comment;
 
