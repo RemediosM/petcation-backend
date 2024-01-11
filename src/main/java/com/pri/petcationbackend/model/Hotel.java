@@ -27,10 +27,10 @@ public class Hotel {
     private String description;
     @Column(name = "Active")
     private Boolean isActive;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "User_id")
     private User user;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "Address_id")
     private Address address;
 

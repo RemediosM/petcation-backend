@@ -21,7 +21,7 @@ public class HotelsImage {
     private Long petsImageId;
     @Column(name = "Image_path")
     private String path;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "Hotel_id")
     private Hotel hotel;
 

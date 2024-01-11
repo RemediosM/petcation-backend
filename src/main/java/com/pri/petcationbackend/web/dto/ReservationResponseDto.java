@@ -16,7 +16,7 @@ public class ReservationResponseDto {
     private Long id;
     private LocalDate from;
     private LocalDate to;
-    private Boolean isTrial;
+    private Boolean isAnyRateForHotel;
     private ReservationStatusEnum status;
     private List<PetDto> petDtos;
     private List<RoomHotelDto> roomDtos;

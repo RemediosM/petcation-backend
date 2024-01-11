@@ -35,11 +35,11 @@ public class Reservation {
     private Boolean isAnyRateForHotel;
     @Column(name = "Status")
     private Integer status;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "Hotel_id")
     private Hotel hotel;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "Pet_owner_id")
     private PetOwner petOwner;
     @ManyToMany(fetch = FetchType.EAGER)
@@ -62,7 +62,7 @@ public class Reservation {
                 .to(to)
                 .status(ReservationStatusEnum.getFromCode(status))
                 .totalPrice(calculatePrice())
-                .isTrial(isTrial)
+                .isAnyRateForHotel(isAnyRateForHotel)
                 .roomDtos(rooms != null ? rooms.stream().map(Room::toRoomHotelDto).toList() : null)
                 .petDtos(pets != null ? pets.stream().map(Pet::toDto).toList() : null)
                 .hotelDto(hotel != null ? hotel.toDto() : null)

@@ -28,11 +28,11 @@ public class Room {
     @Column(name = "Price")
     private BigDecimal price;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "Hotel_id")
     private Hotel hotel;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "Pet_type_id")
     private PetType petType;
 

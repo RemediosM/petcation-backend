@@ -85,6 +85,7 @@ public class SecurityConfig {
                                 .requestMatchers("/getConflictedReservations").authenticated()
                                 .requestMatchers("/deleteImage").authenticated()
                                 .requestMatchers("/addImages").authenticated()
+                                .requestMatchers("/acceptReservation").authenticated()
                                 .requestMatchers("/**").permitAll()
                 )
                 .sessionManagement(session -> session
