@@ -25,4 +25,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Integer findMaxReservationNumber();
 
     List<Reservation> findAllByHotelHotelId(Long id);
+
+    Boolean existsByReservationIdAndStatusAndToBefore(Long id, Integer status, LocalDate date);
 }

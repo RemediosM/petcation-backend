@@ -36,7 +36,7 @@ public class ReservationController {
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get reservation by id.")
     public ReservationResponseDto getReservationById(@RequestParam(value = "id") Long id) {
-        return reservationService.findById(id).stream().map(Reservation::toDto).findAny().orElse(null);
+        return reservationService.getReservationById(id);
     }
 
 

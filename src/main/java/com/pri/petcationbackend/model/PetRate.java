@@ -29,6 +29,9 @@ public class PetRate {
     @ManyToOne
     @JoinColumn(name="Pet_id", nullable=false)
     private Pet pet;
+    @ManyToOne
+    @JoinColumn(name="Reservation_id")
+    private Reservation reservation;
 
     public PetRateDto toDto() {
         return new PetRateDto(BigDecimal.valueOf(rate).setScale(2, RoundingMode.HALF_UP), comment, new HotelRoomDto(hotel));

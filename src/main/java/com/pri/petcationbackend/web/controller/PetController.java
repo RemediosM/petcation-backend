@@ -3,6 +3,7 @@ package com.pri.petcationbackend.web.controller;
 import com.pri.petcationbackend.model.Pet;
 import com.pri.petcationbackend.model.User;
 import com.pri.petcationbackend.service.PetService;
+import com.pri.petcationbackend.service.ReservationService;
 import com.pri.petcationbackend.service.UserService;
 import com.pri.petcationbackend.web.dto.PetDto;
 import com.pri.petcationbackend.web.dto.PetImagesDto;
@@ -29,6 +30,8 @@ import java.util.List;
 public class PetController {
     private final PetService petService;
     private final UserService userService;
+
+    private final ReservationService reservationService;
 
     @GetMapping("/usersPets")
     @Operation(summary = "Get pets for user.")
@@ -114,6 +117,14 @@ public class PetController {
 
         if(petRateRequestDto.getPetId() == null)
             return new ResponseEntity<>("Pet is empty!", HttpStatus.BAD_REQUEST);
+
+        Long reservationId = petRateRequestDto.getReservationId();
+        if(reservationId == null)
+            return new ResponseEntity<>("Reservation is empty!", HttpStatus.BAD_REQUEST);
+
+        if(petService.checkIfRateForPetAndReservationExists(petRateRequestDto.getPetId(), reservationId) || !reservationService.isReservationCompleted(reservationId)) {
+            return new ResponseEntity<>("There are no reservations to rate", HttpStatus.BAD_REQUEST);
+        }
 
         if(petRateRequestDto.getRate().compareTo(BigDecimal.valueOf(5)) > 0 || petRateRequestDto.getRate().compareTo(BigDecimal.valueOf(1)) < 0)
             return new ResponseEntity<>("Only rates in range from 1 to 5", HttpStatus.BAD_REQUEST);

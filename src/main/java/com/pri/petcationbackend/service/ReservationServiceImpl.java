@@ -8,6 +8,7 @@ import com.pri.petcationbackend.web.dto.ReservationResponseDto;
 import com.pri.petcationbackend.web.dto.ReservationStatusEnum;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -67,6 +68,17 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Optional<Reservation> findById(Long reservationId) {
         return reservationId != null ? reservationRepository.findById(reservationId) : Optional.empty();
+    }
+
+    @Override
+    public ReservationResponseDto getReservationById(Long reservationId) {
+        if(reservationId != null) {
+            Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
+            if(reservation != null) {
+                return reservation.toDto();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -173,5 +185,13 @@ public class ReservationServiceImpl implements ReservationService {
         if(reservation != null) {
             reservationRepository.save(reservation);
         }
+    }
+
+    @Override
+    public boolean isReservationCompleted(Long id) {
+        if(id != null) {
+            return BooleanUtils.isTrue(reservationRepository.existsByReservationIdAndStatusAndToBefore(id, ReservationStatusEnum.ACCEPTED.getCode(), LocalDate.now()));
+        }
+        return false;
     }
 }

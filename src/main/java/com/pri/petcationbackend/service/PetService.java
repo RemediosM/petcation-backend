@@ -24,4 +24,6 @@ public interface PetService {
     void addImagesForPet(Pet pet, List<String> imageUrls);
 
     void deleteImage(Long imageId);
+
+    boolean checkIfRateForPetAndReservationExists(Long petId, Long reservationID);
 }

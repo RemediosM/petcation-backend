@@ -83,7 +83,7 @@ public class HotelController {
         if(reservationId != null) {
             reservation = reservationService.findById(reservationId).orElse(null);
         }
-        if(reservation == null || !ReservationStatusEnum.ACCEPTED.getCode().equals(reservation.getStatus()) || BooleanUtils.isTrue(reservation.getIsAnyRateForHotel())) {
+        if(reservation == null || BooleanUtils.isTrue(reservation.getIsAnyRateForHotel()) || !reservationService.isReservationCompleted(reservationId)) {
             return new ResponseEntity<>("There are no reservations to rate", HttpStatus.BAD_REQUEST);
         }
         reservation.setIsAnyRateForHotel(true);

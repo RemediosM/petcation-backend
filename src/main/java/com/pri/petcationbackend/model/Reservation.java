@@ -1,9 +1,11 @@
 package com.pri.petcationbackend.model;
 
+import com.pri.petcationbackend.web.dto.ReservationPetDto;
 import com.pri.petcationbackend.web.dto.ReservationResponseDto;
 import com.pri.petcationbackend.web.dto.ReservationStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,6 +57,9 @@ public class Reservation {
             inverseJoinColumns = @JoinColumn(name = "Pet_id"))
     private List<Pet> pets;
 
+    @OneToMany(mappedBy = "reservation")
+    private List<PetRate> petRates;
+
     public ReservationResponseDto toDto() {
         return ReservationResponseDto.builder()
                 .id(reservationId)
@@ -63,8 +68,11 @@ public class Reservation {
                 .status(ReservationStatusEnum.getFromCode(status))
                 .totalPrice(calculatePrice())
                 .isAnyRateForHotel(isAnyRateForHotel)
+                .petDtos(CollectionUtils.emptyIfNull(pets).stream()
+                        .map(p -> new ReservationPetDto(p.toDto(), CollectionUtils.emptyIfNull(petRates).stream()
+                                .anyMatch(r -> r.getPet().getPetId().equals(p.getPetId())))
+                        ).toList())
                 .roomDtos(rooms != null ? rooms.stream().map(Room::toRoomHotelDto).toList() : null)
-                .petDtos(pets != null ? pets.stream().map(Pet::toDto).toList() : null)
                 .hotelDto(hotel != null ? hotel.toDto() : null)
                 .build();
     }

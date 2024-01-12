@@ -7,6 +7,7 @@ import com.pri.petcationbackend.web.dto.PetRateRequestDto;
 import com.pri.petcationbackend.web.dto.PetResponseDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -93,5 +94,13 @@ public class PetServiceImpl implements PetService{
         if(imageId != null) {
             petsImageRepository.deleteById(imageId);
         }
+    }
+
+    @Override
+    public boolean checkIfRateForPetAndReservationExists(Long petId, Long reservationId) {
+        if(petId != null && reservationId != null) {
+            return BooleanUtils.isTrue(petRateRepository.existsByPetPetIdAndReservationReservationId(petId, reservationId));
+        }
+        return false;
     }
 }

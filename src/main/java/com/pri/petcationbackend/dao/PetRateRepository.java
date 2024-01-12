@@ -9,4 +9,5 @@ import java.util.List;
 public interface PetRateRepository extends JpaRepository<PetRate, Long> {
 
     List<PetRate> findAllByPet(Pet pet);
+    Boolean existsByPetPetIdAndReservationReservationId(Long petId, Long reservationId);
 }

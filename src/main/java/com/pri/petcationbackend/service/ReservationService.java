@@ -15,6 +15,8 @@ public interface ReservationService {
 
     Optional<Reservation> findById(Long reservationId);
 
+    ReservationResponseDto getReservationById(Long reservationId);
+
     void rejectReservation(Reservation reservation);
 
     List<ReservationResponseDto> getCurrentReservationsForUser();
@@ -25,4 +27,6 @@ public interface ReservationService {
 
     List<ReservationResponseDto> getConflictedReservations(Reservation reservation, long availableRoomsSize);
     void save(Reservation reservation);
+
+    boolean isReservationCompleted(Long id);
 }
