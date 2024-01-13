@@ -14,8 +14,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -179,6 +181,18 @@ public class UserServiceImpl implements UserService {
         User user = findByEmail(email);
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    @Override
+    public ConfirmationTokenDto getTokenToResetPassword(User user) {
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByUser(user);
+        if(confirmationToken == null) {
+            confirmationToken = new ConfirmationToken(user);
+        }
+        confirmationToken.setToken(UUID.randomUUID().toString());
+        confirmationToken.setCreatedDate(LocalDateTime.now());
+        confirmationTokenRepository.save(confirmationToken);
+        return confirmationToken.toDto();
     }
 
     private static Set<GrantedAuthority> getAuthorities (Set<Role> roles) {

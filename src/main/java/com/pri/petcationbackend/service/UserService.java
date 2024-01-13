@@ -21,4 +21,6 @@ public interface UserService {
     ConfirmationToken findByConfirmationToken(String confirmationToken);
 
     void confirmEmail(String email);
+
+    ConfirmationTokenDto getTokenToResetPassword(User user);
 }

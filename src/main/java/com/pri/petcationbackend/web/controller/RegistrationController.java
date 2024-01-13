@@ -37,8 +37,12 @@ public class RegistrationController {
     @PostMapping("/login")
     @Operation(summary = "Log in")
     public ResponseEntity<LoginResponseDto> authenticateUser(@RequestBody @Valid LoginDto loginDto){
+        return getLoginResponseDtoResponseEntity(loginDto.getEmail(), loginDto.getPassword());
+    }
+
+    private ResponseEntity<LoginResponseDto> getLoginResponseDtoResponseEntity(String mail,  String password) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDto.getEmail(), loginDto.getPassword()));
+                mail, password));
 
         String email = authentication.getName();
         User user = new User(email,"");
@@ -69,8 +73,8 @@ public class RegistrationController {
     }
 
     @PostMapping("/confirmEmail")
-    @Operation(summary = "ConfirmEmail")
-    public ResponseEntity<?> confirmEmail(String confirmationToken) {
+    @Operation(summary = "Confirm email")
+    public ResponseEntity<?> confirmEmail(@RequestParam(value = "confirmationToken") String confirmationToken) {
         ConfirmationToken token = userService.findByConfirmationToken(confirmationToken);
 
         if(token != null)
@@ -78,7 +82,7 @@ public class RegistrationController {
             userService.confirmEmail(token.getUser().getEmail());
             return ResponseEntity.ok("Email verified successfully!");
         }
-        return ResponseEntity.badRequest().body("Error: Couldn't verify email");
+        return ResponseEntity.badRequest().body("Couldn't verify email");
     }
 
     @PostMapping("/changePassword")
@@ -127,6 +131,37 @@ public class RegistrationController {
                 principal instanceof UserDetails userDetails
                         ? userDetails.getUsername()
                         : principal.toString());
+    }
+
+    @GetMapping("/resetPasswordToken")
+    @Operation(summary = "Reset password token")
+    public ResponseEntity<?> resetPasswordToken(@RequestParam(value = "email") String email) {
+        User user = userService.findByEmail(email);
+
+        if(user != null)
+        {
+            ConfirmationTokenDto confirmationTokenDto = userService.getTokenToResetPassword(user);
+            return ResponseEntity.ok().body(confirmationTokenDto);
+        }
+        return ResponseEntity.badRequest().body("Couldn't find user with given email");
+    }
+
+    @PostMapping("/resetPassword")
+    @Operation(summary = "Reset password token")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
+        ConfirmationToken confirmationToken = resetPasswordDto != null && resetPasswordDto.getToken() != null
+                ? userService.findByConfirmationToken(resetPasswordDto.getToken())
+                : null;
+
+        if(confirmationToken != null)
+        {
+            if(!Objects.equals(resetPasswordDto.getNewPassword(), resetPasswordDto.getMatchingNewPassword()))
+                return ResponseEntity.badRequest()
+                        .body("Passwords do not match!");
+            userService.changePassword(confirmationToken.getUser(), resetPasswordDto.getNewPassword());
+            return getLoginResponseDtoResponseEntity(confirmationToken.getUser().getEmail(), resetPasswordDto.getNewPassword());
+        }
+        return ResponseEntity.badRequest().body("Couldn't reset password");
     }
 
 }
