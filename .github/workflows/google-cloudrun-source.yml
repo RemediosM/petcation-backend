@@ -96,8 +96,8 @@ jobs:
         with:
           service: default
           region: europe-central2
-          image: europe-central2-docker.pkg.dev/petcation-405617/cloud-run-source-deploy
-          # image: "gcr.io/petcation-405617/cloudRunName:main"
+          # image: europe-central2-docker.pkg.dev/petcation-405617/cloud-run-source-deploy
+          image: gcr.io
           # # NOTE: If required, update to the appropriate source folder
           # source: ./
 
