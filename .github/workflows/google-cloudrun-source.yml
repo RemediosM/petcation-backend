@@ -67,6 +67,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Set up Env
+        env:
+          SERVER: prod
+
+
       - name: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
         run: echo ${{ secrets.GOOGLE_CLOUD_EMAIL }}
 
