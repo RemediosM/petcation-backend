@@ -1,6 +1,7 @@
 package com.pri.petcationbackend.web.controller;
 
 import com.pri.petcationbackend.auth.JwtUtil;
+import com.pri.petcationbackend.model.ConfirmationToken;
 import com.pri.petcationbackend.model.User;
 import com.pri.petcationbackend.service.UserService;
 import com.pri.petcationbackend.web.dto.*;
@@ -50,7 +51,7 @@ public class RegistrationController {
 
     @PostMapping("/signup")
     @Operation(summary = "Register user account")
-    public ResponseEntity<String> registerUserAccount(@RequestBody @Valid SignUpDto signUpDto) {
+    public ResponseEntity<?> registerUserAccount(@RequestBody @Valid SignUpDto signUpDto) {
 
         EmailValidator validator = EmailValidator.getInstance();
         if(!validator.isValid(signUpDto.getEmail()))
@@ -62,9 +63,22 @@ public class RegistrationController {
         if(!Objects.equals(signUpDto.getPassword(), signUpDto.getMatchingPassword()))
             return new ResponseEntity<>("Passwords do not match!", HttpStatus.BAD_REQUEST);
 
-        userService.registerNewUserAccount(signUpDto);
+        ConfirmationTokenDto confirmationTokenDto = userService.registerNewUserAccount(signUpDto);
 
-        return new ResponseEntity<>("User is registered successfully!", HttpStatus.OK);
+        return ResponseEntity.ok().body(confirmationTokenDto);
+    }
+
+    @PostMapping("/confirmEmail")
+    @Operation(summary = "ConfirmEmail")
+    public ResponseEntity<?> confirmEmail(String confirmationToken) {
+        ConfirmationToken token = userService.findByConfirmationToken(confirmationToken);
+
+        if(token != null)
+        {
+            userService.confirmEmail(token.getUser().getEmail());
+            return ResponseEntity.ok("Email verified successfully!");
+        }
+        return ResponseEntity.badRequest().body("Error: Couldn't verify email");
     }
 
     @PostMapping("/changePassword")

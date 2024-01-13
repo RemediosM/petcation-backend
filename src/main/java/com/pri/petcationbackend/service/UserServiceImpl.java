@@ -32,10 +32,11 @@ public class UserServiceImpl implements UserService {
     private final PetRepository petRepository;
     private final PetOwnerRepository petOwnerRepository;
     private final PetTypeRepository petTypeRepository;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
 
 
     @Override
-    public void registerNewUserAccount(SignUpDto signUpDto)  {
+    public ConfirmationTokenDto registerNewUserAccount(SignUpDto signUpDto)  {
         Address address = null;
         AddressDto addressDto = signUpDto.getAddressDto();
 
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
                 .lastName(signUpDto.getLastName())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .email(signUpDto.getEmail())
-                .enabled(true)
+                .enabled(false)
                 .address(address)
                 .build();
         roleRepository.findByName(RoleEnum.ROLE_USER.name()).ifPresent(role ->
@@ -78,6 +79,9 @@ public class UserServiceImpl implements UserService {
                             }
                     );
         }
+        ConfirmationToken confirmationToken = new ConfirmationToken(user);
+        confirmationTokenRepository.save(confirmationToken);
+        return confirmationToken.toDto();
     }
 
     private City getCityOrAddNew(String city, Country country) {
@@ -92,12 +96,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByEmail(String email) {
-        return StringUtils.isNotEmpty(email) ? userRepository.findByEmail(email) : null;
+        return StringUtils.isNotEmpty(email) ? userRepository.findByEmailIgnoreCase(email) : null;
     }
 
     @Override
     public UserDto loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmailIgnoreCase(email);
         if (user == null) {
             throw new UsernameNotFoundException("No user found with username: " + email);
         }
@@ -163,6 +167,18 @@ public class UserServiceImpl implements UserService {
         }
         User savedUser = userRepository.save(user);
         return loadUserByUsername(savedUser.getEmail());
+    }
+
+    @Override
+    public ConfirmationToken findByConfirmationToken(String confirmationToken) {
+        return confirmationTokenRepository.findByToken(confirmationToken);
+    }
+
+    @Override
+    public void confirmEmail(String email) {
+        User user = findByEmail(email);
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 
     private static Set<GrantedAuthority> getAuthorities (Set<Role> roles) {
