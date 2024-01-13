@@ -90,18 +90,19 @@ jobs:
       # - name: Dump run
       #   run: java -jar /home/runner/.m2/repository/com/pri/petcation-backend/0.0.1-SNAPSHOT/petcation-backend-0.0.1-SNAPSHOT.jar
       
-      # - name: Deploy to Cloud Run
-      #   id: deploy
-      #   uses: google-github-actions/deploy-cloudrun@v0
-      #   with:
-      #     service: default
-      #     region: europe-central2
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: default
+          region: europe-central2
+          image: /home/runner/.m2/repository/com/pri/petcation-backend/0.0.1-SNAPSHOT/petcation-backend-0.0.1-SNAPSHOT.jar
           # image: "gcr.io/petcation-405617/cloudRunName:main"
           # # NOTE: If required, update to the appropriate source folder
           # source: ./
 
-      - name: Run Gcloud
-        run: gcloud app deploy /home/runner/.m2/repository/com/pri/petcation-backend/0.0.1-SNAPSHOT/petcation-backend-0.0.1-SNAPSHOT.jar
+      # - name: Run Gcloud
+      #   run: gcloud app deploy /home/runner/.m2/repository/com/pri/petcation-backend/0.0.1-SNAPSHOT/petcation-backend-0.0.1-SNAPSHOT.jar
       
       # - name: auth
       #   uses: 'google-github-actions/auth@v2'
