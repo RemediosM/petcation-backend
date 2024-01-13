@@ -66,13 +66,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+        
       - name: Auth
         uses: 'google-github-actions/setup-gcloud@v0'
         with:
           service_account_email: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
           service_account_key: ${{ secrets.GOOGLE_CLOUD_KEY }}
           project_id: petcation-runner
+        
+      - name: Add Maven
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.8.2
+
+      - name: Deploy
+        run: echo hello
+
+      
       # - name: auth
       #   uses: 'google-github-actions/auth@v2'
       #   with:
@@ -84,8 +94,7 @@ jobs:
       #   with:
       #     credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY }}'    
 
-      - name: Deploy
-        run: echo hello
+      
 
       # # - name: Google Auth
       # #   id: auth
