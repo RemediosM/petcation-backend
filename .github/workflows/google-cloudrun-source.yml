@@ -91,7 +91,7 @@ jobs:
 
       - uses: 'google-github-actions/auth@v2'
         with:
-          credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY }}'
+          credentials_json: '${{ secrets.GOOGLE_CLOUD_JSON_AUTH }}'
         
       - name: Add Maven
         uses: stCarolas/setup-maven@v4.5
