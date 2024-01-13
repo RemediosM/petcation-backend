@@ -85,6 +85,9 @@ jobs:
       - name: Check Java
         run: java -version
 
+      - name: clean and install
+        run: mvn clean install
+
       - name: Deploy
         run: echo hello
 
