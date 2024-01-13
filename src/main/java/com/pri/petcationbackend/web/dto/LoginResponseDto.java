@@ -9,4 +9,5 @@ public class LoginResponseDto {
 
     private String role;
     private String token;
+    private boolean confirmed;
 }

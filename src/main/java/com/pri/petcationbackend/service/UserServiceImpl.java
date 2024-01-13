@@ -195,6 +195,16 @@ public class UserServiceImpl implements UserService {
         return confirmationToken.toDto();
     }
 
+    @Override
+    public ConfirmationTokenDto getTokenToConfirmEmail(User user) {
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByUser(user);
+        if(confirmationToken == null) {
+            confirmationToken = new ConfirmationToken(user);
+            confirmationTokenRepository.save(confirmationToken);
+        }
+        return confirmationToken.toDto();
+    }
+
     private static Set<GrantedAuthority> getAuthorities (Set<Role> roles) {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))

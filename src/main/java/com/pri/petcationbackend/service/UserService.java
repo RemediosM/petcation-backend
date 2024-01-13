@@ -23,4 +23,6 @@ public interface UserService {
     void confirmEmail(String email);
 
     ConfirmationTokenDto getTokenToResetPassword(User user);
+
+    ConfirmationTokenDto getTokenToConfirmEmail(User user);
 }

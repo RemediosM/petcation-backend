@@ -29,6 +29,8 @@ import java.util.Objects;
 @CrossOrigin
 public class RegistrationController {
 
+    private static final String PASSWORD_DO_NOT_MATCH = "Passwords do not match!";
+
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -36,21 +38,32 @@ public class RegistrationController {
 
     @PostMapping("/login")
     @Operation(summary = "Log in")
-    public ResponseEntity<LoginResponseDto> authenticateUser(@RequestBody @Valid LoginDto loginDto){
+    public ResponseEntity<?> authenticateUser(@RequestBody @Valid LoginDto loginDto){
         return getLoginResponseDtoResponseEntity(loginDto.getEmail(), loginDto.getPassword());
     }
 
-    private ResponseEntity<LoginResponseDto> getLoginResponseDtoResponseEntity(String mail,  String password) {
+    private ResponseEntity<?> getLoginResponseDtoResponseEntity(String mail,  String password) {
+        User user2 = userService.findByEmail(mail);
+        if(user2 == null) {
+            return ResponseEntity.badRequest()
+                    .body("Incorrect e-mail.");
+        }
+
+        String role = user2.getRoles().stream().anyMatch(r -> RoleEnum.ROLE_HOTEL.name().equals(r.getName()))
+                ? "hotel" : "user";
+        if(!user2.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new LoginResponseDto(role, null, false));
+        }
+
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 mail, password));
 
         String email = authentication.getName();
         User user = new User(email,"");
-        User user2 = userService.findByEmail(email);
-        boolean isHotel = user2.getRoles().stream().anyMatch(role -> RoleEnum.ROLE_HOTEL.name().equals(role.getName()));
         String token = jwtUtil.createToken(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>(new LoginResponseDto(isHotel ? "hotel" : "user", token), HttpStatus.OK);
+        return new ResponseEntity<>(new LoginResponseDto(role, token, true), HttpStatus.OK);
     }
 
     @PostMapping("/signup")
@@ -65,7 +78,7 @@ public class RegistrationController {
             return new ResponseEntity<>("Email already taken!", HttpStatus.BAD_REQUEST);
 
         if(!Objects.equals(signUpDto.getPassword(), signUpDto.getMatchingPassword()))
-            return new ResponseEntity<>("Passwords do not match!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(PASSWORD_DO_NOT_MATCH, HttpStatus.BAD_REQUEST);
 
         ConfirmationTokenDto confirmationTokenDto = userService.registerNewUserAccount(signUpDto);
 
@@ -98,7 +111,7 @@ public class RegistrationController {
             return new ResponseEntity<>("New password is same as the old one", HttpStatus.BAD_REQUEST);
         }
         if(!Objects.equals(changePasswordDto.getNewPassword(), changePasswordDto.getMatchingNewPassword()))
-            return new ResponseEntity<>("Passwords do not match!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(PASSWORD_DO_NOT_MATCH, HttpStatus.BAD_REQUEST);
         userService.changePassword(user, changePasswordDto.getNewPassword());
 
         return new ResponseEntity<>("Password is changed successfully!", HttpStatus.OK);
@@ -146,6 +159,19 @@ public class RegistrationController {
         return ResponseEntity.badRequest().body("Couldn't find user with given email");
     }
 
+    @GetMapping("/confirmMailToken")
+    @Operation(summary = "Confirm mail token")
+    public ResponseEntity<?> confirmMailToken(@RequestParam(value = "email") String email) {
+        User user = userService.findByEmail(email);
+
+        if(user != null)
+        {
+            ConfirmationTokenDto confirmationTokenDto = userService.getTokenToConfirmEmail(user);
+            return ResponseEntity.ok().body(confirmationTokenDto);
+        }
+        return ResponseEntity.badRequest().body("Couldn't find user with given email");
+    }
+
     @PostMapping("/resetPassword")
     @Operation(summary = "Reset password token")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto) {
@@ -157,7 +183,7 @@ public class RegistrationController {
         {
             if(!Objects.equals(resetPasswordDto.getNewPassword(), resetPasswordDto.getMatchingNewPassword()))
                 return ResponseEntity.badRequest()
-                        .body("Passwords do not match!");
+                        .body(PASSWORD_DO_NOT_MATCH);
             userService.changePassword(confirmationToken.getUser(), resetPasswordDto.getNewPassword());
             return getLoginResponseDtoResponseEntity(confirmationToken.getUser().getEmail(), resetPasswordDto.getNewPassword());
         }
