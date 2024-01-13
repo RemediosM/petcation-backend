@@ -73,12 +73,16 @@ jobs:
       #     service_account_email: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
       #     service_account_key: ${{ secrets.GOOGLE_CLOUD_KEY }}
       #     project_id: petcation-runner
-      - name: auth
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY }}'
+      # - name: auth
+      #   uses: 'google-github-actions/auth@v2'
+      #   with:
+      #     credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY }}'
 
-          
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY }}'    
 
       - name: Deploy
         run: echo hello
