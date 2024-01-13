@@ -67,12 +67,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Auth
-        uses: 'google-github-actions/setup-gcloud@v0'
+      # - name: Auth
+      #   uses: 'google-github-actions/setup-gcloud@v0'
+      #   with:
+      #     service_account_email: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
+      #     service_account_key: ${{ secrets.GOOGLE_CLOUD_KEY }}
+      #     project_id: petcation-runner
+      - name: auth
+        uses: 'google-github-actions/auth@v2'
         with:
-          service_account_email: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
-          service_account_key: ${{ secrets.GOOGLE_CLOUD_KEY }}
-          project_id: petcation-runner
+          credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY }}'
+
+          
 
       - name: Deploy
         run: echo hello
