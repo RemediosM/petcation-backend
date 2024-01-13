@@ -104,7 +104,6 @@ jobs:
         with:
           service: default
           region: europe-central2
-          project: petcation-405617
           # # NOTE: If required, update to the appropriate source folder
           # source: ./
 
