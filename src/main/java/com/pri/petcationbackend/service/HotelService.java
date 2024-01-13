@@ -15,4 +15,6 @@ public interface HotelService {
     List<Room> checkAvailableRooms(ReservationRequestDto reservationDto);
 
     void addHotelRate(HotelRateRequestDto hotelRateRequestDto, User currentUser);
+
+    RoomDto findRoomByRoomId(Long id);
 }

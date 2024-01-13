@@ -1,8 +1,6 @@
 package com.pri.petcationbackend.web.controller;
 
-import com.pri.petcationbackend.dao.RoomRepository;
 import com.pri.petcationbackend.model.Reservation;
-import com.pri.petcationbackend.model.Room;
 import com.pri.petcationbackend.model.User;
 import com.pri.petcationbackend.service.HotelService;
 import com.pri.petcationbackend.service.ReservationService;
@@ -27,7 +25,6 @@ import java.util.List;
 @CrossOrigin
 public class HotelController {
 
-    private final RoomRepository roomRepository;
     private final UserService userService;
     private final HotelService hotelService;
     private final ReservationService reservationService;
@@ -58,7 +55,7 @@ public class HotelController {
     @GetMapping("/room")
     @Operation(summary = "Get room by id.")
     public RoomDto getRoomById(@RequestParam(value = "id") Long id) {
-        return roomRepository.findById(id).stream().map(Room::toDto).findAny().orElse(null);
+        return hotelService.findRoomByRoomId(id);
     }
 
     @PostMapping("/addHotelRate")
@@ -66,7 +63,7 @@ public class HotelController {
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<String> addHotelRate(@RequestBody @Valid HotelRateRequestDto hotelRateRequestDto) {
         User user = userService.getCurrentUser();
-        if(user.getRoles().stream().anyMatch(role -> "ROLE_HOTEL".equals(role.getName()))){
+        if(user.getRoles().stream().noneMatch(role -> RoleEnum.ROLE_USER.name().equals(role.getName()))){
             return new ResponseEntity<>("Only pet owner can add rate for hotel", HttpStatus.BAD_REQUEST);
         }
 

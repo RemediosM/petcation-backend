@@ -5,10 +5,7 @@ import com.pri.petcationbackend.model.User;
 import com.pri.petcationbackend.service.PetService;
 import com.pri.petcationbackend.service.ReservationService;
 import com.pri.petcationbackend.service.UserService;
-import com.pri.petcationbackend.web.dto.PetDto;
-import com.pri.petcationbackend.web.dto.PetImagesDto;
-import com.pri.petcationbackend.web.dto.PetRateRequestDto;
-import com.pri.petcationbackend.web.dto.PetResponseDto;
+import com.pri.petcationbackend.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -75,7 +72,7 @@ public class PetController {
         User user = userService.getCurrentUser();
         Pet pet = petService.findPetById(petImagesDto.getPetId());
 
-        if(user.getRoles().stream().anyMatch(role -> "ROLE_HOTEL".equals(role.getName())) || pet == null
+        if(user.getRoles().stream().anyMatch(role -> !RoleEnum.ROLE_USER.name().equals(role.getName())) || pet == null
                 || pet.getPetOwner() == null
                 || !user.equals(pet.getPetOwner().getUser())){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -108,7 +105,7 @@ public class PetController {
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<String> addPetRate(@RequestBody @Valid PetRateRequestDto petRateRequestDto) {
         User user = userService.getCurrentUser();
-        if(user.getRoles().stream().anyMatch(role -> "ROLE_USER".equals(role.getName()))){
+        if(user.getRoles().stream().noneMatch(role -> RoleEnum.ROLE_HOTEL.name().equals(role.getName()))){
             return new ResponseEntity<>("Only hotel can add rate for pet", HttpStatus.BAD_REQUEST);
         }
 

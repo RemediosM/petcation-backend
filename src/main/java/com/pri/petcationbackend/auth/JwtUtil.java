@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtUtil {
 
     private static final String SECRET_KEY = "mysecretkey";
-    private static final long ACCESS_TOKEN_VALIDITY = 60*60*1000L;
+    private static final long ACCESS_TOKEN_VALIDITY = 60L;
 
     private final JwtParser jwtParser;
 
@@ -39,7 +39,7 @@ public class JwtUtil {
 
     public String refreshToken(String token) {
         final Date createdDate = new Date();
-        final Date expirationDate = new Date(createdDate.getTime() + TimeUnit.MINUTES.toMillis(ACCESS_TOKEN_VALIDITY));
+        final Date expirationDate = new Date(createdDate.getTime());
 
         final Claims claims = parseJwtClaims(token);
         claims.setIssuedAt(createdDate);
@@ -84,11 +84,4 @@ public class JwtUtil {
             throw e;
         }
     }
-
-    public String getEmail(Claims claims) {
-        return claims.getSubject();
-    }
-
-
-
 }

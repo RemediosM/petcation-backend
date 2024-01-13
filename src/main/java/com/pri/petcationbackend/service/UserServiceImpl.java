@@ -2,10 +2,7 @@ package com.pri.petcationbackend.service;
 
 import com.pri.petcationbackend.dao.*;
 import com.pri.petcationbackend.model.*;
-import com.pri.petcationbackend.web.dto.AddressDto;
-import com.pri.petcationbackend.web.dto.ModifyUserDto;
-import com.pri.petcationbackend.web.dto.SignUpDto;
-import com.pri.petcationbackend.web.dto.UserDto;
+import com.pri.petcationbackend.web.dto.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -62,7 +59,7 @@ public class UserServiceImpl implements UserService {
                 .enabled(true)
                 .address(address)
                 .build();
-        roleRepository.findByName("ROLE_USER").ifPresent(role ->
+        roleRepository.findByName(RoleEnum.ROLE_USER.name()).ifPresent(role ->
             user.setRoles(Set.of(role)));
         userRepository.save(user);
         PetOwner petOwner = petOwnerRepository.save(new PetOwner(user));

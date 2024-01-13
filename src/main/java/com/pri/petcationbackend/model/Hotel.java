@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 
@@ -47,8 +48,8 @@ public class Hotel {
                 .name(name)
                 .addressDto(address != null ? address.toDto() : null)
                 .description(description)
-                .images(images.stream().map(HotelsImage::toDto).toList())
-                .rooms(rooms.stream().map(Room::toRoomHotelDto).toList())
+                .images(CollectionUtils.emptyIfNull(images).stream().map(HotelsImage::toDto).toList())
+                .rooms(CollectionUtils.emptyIfNull(rooms).stream().map(Room::toRoomHotelDto).toList())
                 .build();
     }
 }

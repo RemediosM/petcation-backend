@@ -27,6 +27,7 @@ public class HotelServiceImpl implements HotelService {
     private final PetRepository petRepository;
     private final HotelRateRepository hotelRateRepository;
     private final PetOwnerRepository petOwnerRepository;
+    private final RoomRepository roomRepository;
 
     @Override
     public List<HotelDto> getAllHotels() {
@@ -165,6 +166,16 @@ public class HotelServiceImpl implements HotelService {
                             .comment(hotelRateRequestDto.getComment())
                             .build()));
         }
+    }
+
+    @Override
+    public RoomDto findRoomByRoomId(Long id) {
+        if(id != null) {
+            return roomRepository.findById(id)
+                    .map(Room::toDto)
+                    .orElse(null);
+        }
+        return null;
     }
 
     private List<PetTypeQtyDto> getPetTypeQtyList(List<Room> rooms) {

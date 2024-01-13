@@ -1,6 +1,7 @@
 package com.pri.petcationbackend;
 
 import com.pri.petcationbackend.service.RoleService;
+import com.pri.petcationbackend.web.dto.RoleEnum;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,10 +16,6 @@ public class PetcationBackendApplication {
 
     @Bean
     public CommandLineRunner demo(RoleService roleService) {
-        return (args) -> {
-            roleService.saveRoleIfNotExists("ROLE_ADMIN");
-            roleService.saveRoleIfNotExists("ROLE_USER");
-            roleService.saveRoleIfNotExists("ROLE_HOTEL");
-        };
+        return args -> roleService.saveRoleIfNotExists(RoleEnum.values());
     }
 }

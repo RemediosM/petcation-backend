@@ -42,7 +42,7 @@ public class RegistrationController {
         String email = authentication.getName();
         User user = new User(email,"");
         User user2 = userService.findByEmail(email);
-        boolean isHotel = user2.getRoles().stream().anyMatch(role -> "ROLE_HOTEL".equals(role.getName()));
+        boolean isHotel = user2.getRoles().stream().anyMatch(role -> RoleEnum.ROLE_HOTEL.name().equals(role.getName()));
         String token = jwtUtil.createToken(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return new ResponseEntity<>(new LoginResponseDto(isHotel ? "hotel" : "user", token), HttpStatus.OK);

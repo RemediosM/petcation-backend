@@ -9,6 +9,7 @@ import com.pri.petcationbackend.service.UserService;
 import com.pri.petcationbackend.web.dto.ReservationRequestDto;
 import com.pri.petcationbackend.web.dto.ReservationResponseDto;
 import com.pri.petcationbackend.web.dto.ReservationStatusEnum;
+import com.pri.petcationbackend.web.dto.RoleEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,7 +58,7 @@ public class ReservationController {
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<String> deleteReservationById(@RequestParam(value = "id") Long id) {
         User user = userService.getCurrentUser();
-        if(user.getRoles().stream().anyMatch(role -> "ROLE_HOTEL".equals(role.getName()))){
+        if(user.getRoles().stream().noneMatch(role -> RoleEnum.ROLE_USER.name().equals(role.getName()))){
             return new ResponseEntity<>("Only pet owner can delete a reservation. Use the reject reservation function.", HttpStatus.BAD_REQUEST);
         }
         reservationService.deleteReservation(id);
@@ -69,7 +70,7 @@ public class ReservationController {
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<String> rejectReservationById(@RequestParam(value = "id") Long id) {
         User user = userService.getCurrentUser();
-        if(user.getRoles().stream().anyMatch(role -> "ROLE_USER".equals(role.getName()))){
+        if(user.getRoles().stream().noneMatch(role -> RoleEnum.ROLE_HOTEL.name().equals(role.getName()))){
             return new ResponseEntity<>("Only hotel can reject a reservation. Use the delete reservation function.", HttpStatus.BAD_REQUEST);
         }
         Reservation reservation = reservationService.findById(id).orElse(null);
@@ -102,7 +103,7 @@ public class ReservationController {
     @Operation(summary = "Get conflicted reservations by reservation id.")
     public ResponseEntity<List<ReservationResponseDto>> getConflictedReservations(@RequestParam(value = "id") Long id) {
         User user = userService.getCurrentUser();
-        if(user.getRoles().stream().anyMatch(role -> "ROLE_USER".equals(role.getName()))){
+        if(user.getRoles().stream().noneMatch(role -> RoleEnum.ROLE_HOTEL.name().equals(role.getName()))){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         Reservation reservation = reservationService.findById(id).orElse(null);
@@ -124,7 +125,7 @@ public class ReservationController {
     @Operation(summary = "Accept reservation.")
     public ResponseEntity<String> acceptReservation(@RequestParam(value = "id") Long id) {
         User user = userService.getCurrentUser();
-        if(user.getRoles().stream().anyMatch(role -> "ROLE_USER".equals(role.getName()))){
+        if(user.getRoles().stream().noneMatch(role -> RoleEnum.ROLE_HOTEL.name().equals(role.getName()))){
             return new ResponseEntity<>("Only hotel can accept a reservation.", HttpStatus.BAD_REQUEST);
         }
         Reservation reservation = reservationService.findById(id).orElse(null);

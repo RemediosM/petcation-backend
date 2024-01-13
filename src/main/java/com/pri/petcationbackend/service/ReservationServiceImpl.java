@@ -6,6 +6,7 @@ import com.pri.petcationbackend.model.*;
 import com.pri.petcationbackend.web.dto.ReservationRequestDto;
 import com.pri.petcationbackend.web.dto.ReservationResponseDto;
 import com.pri.petcationbackend.web.dto.ReservationStatusEnum;
+import com.pri.petcationbackend.web.dto.RoleEnum;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
@@ -101,9 +102,9 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<ReservationResponseDto> getAllReservationsForUser() {
         User user = userService.getCurrentUser();
-        if(user.getRoles().stream().anyMatch(role -> "ROLE_HOTEL".equals(role.getName()))) {
+        if(user.getRoles().stream().anyMatch(role -> RoleEnum.ROLE_HOTEL.name().equals(role.getName()))) {
             return reservationRepository.findAllByHotelUser(user).stream().map(Reservation::toDto).toList();
-        } else if (user.getRoles().stream().anyMatch(role -> "ROLE_USER".equals(role.getName()))){
+        } else if (user.getRoles().stream().anyMatch(role -> RoleEnum.ROLE_USER.name().equals(role.getName()))){
             return reservationRepository.findAllByPetOwnerUser(user).stream().map(Reservation::toDto).toList();
         }
         return new ArrayList<>();
