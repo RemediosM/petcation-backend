@@ -4,5 +4,7 @@ import com.pri.petcationbackend.web.dto.RoleEnum;
 
 public interface RoleService {
 
-    void saveRoleIfNotExists(RoleEnum[] roleName);
+    void saveRolesIfNotExists(RoleEnum[] roleName);
+
+    void saveRoleIfNotExists(String roleName);
 }

@@ -33,7 +33,7 @@ public class HotelController {
     @PostMapping(value = "/hotels")
     @Operation(summary = "Get hotels by coordinates and date.")
     public List<HotelDto> getHotels(@RequestBody HotelRequestDto hotelRequestDto) {
-        if (hotelRequestDto.getMaxDistance() == null || hotelRequestDto.getMaxDistance() == 0) {
+        if (hotelRequestDto.getMaxDistance() == null || hotelRequestDto.getMaxDistance() <= 0) {
             hotelRequestDto.setMaxDistance(15);
         }
         return hotelService.getHotels(hotelRequestDto);
@@ -41,7 +41,6 @@ public class HotelController {
 
     @GetMapping("/allHotels")
     @Operation(summary = "Get all hotels.")
-    @CrossOrigin
     public List<HotelDto> getAllHotels() {
         return hotelService.getAllHotels();
     }

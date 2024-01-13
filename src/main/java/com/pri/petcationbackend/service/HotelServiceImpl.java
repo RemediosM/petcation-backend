@@ -41,9 +41,10 @@ public class HotelServiceImpl implements HotelService {
 
     public List<HotelDto> getHotels(HotelRequestDto hotelRequestDto) {
         return hotelRepository.findAllActiveHotels().stream()
-                .filter(hotel -> equalsNullOrZero(hotelRequestDto.getLat()) || equalsNullOrZero(hotelRequestDto.getLon())
-                        || DistanceUtils.isTwoPointsInMaxDistance(hotelRequestDto.getMaxDistance(), hotelRequestDto.getLat(),
-                        hotelRequestDto.getLon(), hotel.getAddress().getLatitude(), hotel.getAddress().getLongitude()))
+                .filter(hotel -> equalsNullOrZero(hotelRequestDto.getLat())
+                        || equalsNullOrZero(hotelRequestDto.getLon())
+                        || DistanceUtils.isTwoPointsInMaxDistance(hotelRequestDto.getMaxDistance(), hotelRequestDto.getLat(), hotelRequestDto.getLon(), hotel.getAddress().getLatitude(), hotel.getAddress().getLongitude())
+                )
                 .filter(hotel -> isRoomVacancyWithPetType(hotel.getRooms(), hotelRequestDto.getFrom(), hotelRequestDto.getTo(), hotelRequestDto.getPetTypeQtyDtoList()))
                 .map(hotel -> {
                     HotelDto hotelDto = hotel.toDto();
@@ -54,7 +55,6 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public HotelDetailsDto getHotelById(Long id) {
-
         Hotel hotel = hotelRepository.findById(id).orElse(null);
         if(hotel != null) {
             LocalDate from = LocalDate.now();
@@ -64,10 +64,17 @@ public class HotelServiceImpl implements HotelService {
             OptionalDouble avgRate = rates.stream()
                     .mapToDouble(HotelRate::getRate)
                     .average();
-            return new HotelDetailsDto(hotel.getHotelId(), hotel.getName(), hotel.getDescription(), hotel.getAddress().toDto(),
-                    isAnyReservation, avgRate.isPresent() ? BigDecimal.valueOf(avgRate.getAsDouble()).setScale(2, RoundingMode.HALF_UP) : null,
-                    rates.stream().map(HotelRate::toDto).toList(), getPetTypeQtyList(hotel.getRooms()),
-                    isAnyReservation ? getFreeRoomsList(hotel.getRooms(), from, to) : null, org.apache.commons.collections4.CollectionUtils.emptyIfNull(hotel.getImages()).stream().map(HotelsImage::toDto).toList());
+            return new HotelDetailsDto(hotel.getHotelId(),
+                    hotel.getName(),
+                    hotel.getDescription(),
+                    hotel.getAddress().toDto(),
+                    isAnyReservation,
+                    avgRate.isPresent() ? BigDecimal.valueOf(avgRate.getAsDouble()).setScale(2, RoundingMode.HALF_UP) : null,
+                    rates.stream().map(HotelRate::toDto).toList(),
+                    getPetTypeQtyList(hotel.getRooms()),
+                    isAnyReservation ? getFreeRoomsList(hotel.getRooms(), from, to) : null,
+                    org.apache.commons.collections4.CollectionUtils.emptyIfNull(hotel.getImages()).stream().map(HotelsImage::toDto).toList()
+            );
         }
         return null;
     }
@@ -98,7 +105,7 @@ public class HotelServiceImpl implements HotelService {
 
     private HotelDto setAvgRate(HotelDto hotelDto) {
         Double avgRate = hotelRateRepository.getAverageRateForHotel(hotelDto.getId());
-        if(avgRate != null && !avgRate.isNaN()) {
+        if(avgRate != null) {
             hotelDto.setAverageRate(BigDecimal.valueOf(avgRate).setScale(2, RoundingMode.HALF_UP));
         }
         return hotelDto;

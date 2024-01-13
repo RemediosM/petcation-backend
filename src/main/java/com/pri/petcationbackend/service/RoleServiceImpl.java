@@ -18,7 +18,7 @@ public class RoleServiceImpl implements RoleService{
     private final RoleRepository roleRepository;
 
     @Override
-    public void saveRoleIfNotExists(RoleEnum[] roleNames) {
+    public void saveRolesIfNotExists(RoleEnum[] roleNames) {
         List<Role> roles = new ArrayList<>();
         for (RoleEnum role : roleNames) {
             if (roleRepository.findByName(role.name()).isEmpty()) {
@@ -26,5 +26,12 @@ public class RoleServiceImpl implements RoleService{
             }
         }
         roleRepository.saveAll(roles);
+    }
+
+    @Override
+    public void saveRoleIfNotExists(String roleName) {
+        if (roleRepository.findByName(roleName).isEmpty()) {
+                roleRepository.save(new Role(roleName));
+        }
     }
 }

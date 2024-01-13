@@ -27,14 +27,13 @@ import java.util.List;
 public class PetController {
     private final PetService petService;
     private final UserService userService;
-
     private final ReservationService reservationService;
 
     @GetMapping("/usersPets")
     @Operation(summary = "Get pets for user.")
     @SecurityRequirement(name = "Bearer Authentication")
     public List<PetResponseDto> getPetsForUser() {
-        return  petService.getAllPetsByUser(userService.getCurrentUser());
+        return petService.getAllPetsByUser(userService.getCurrentUser());
     }
 
     @GetMapping("/pets")
@@ -65,8 +64,6 @@ public class PetController {
     @Operation(summary = "Add pets images.")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<String> addPetsImages(@RequestBody @Valid PetImagesDto petImagesDto) {
-
-
         if(petImagesDto.getPetId() == null || CollectionUtils.isEmpty(petImagesDto.getImageUrls()))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         User user = userService.getCurrentUser();
@@ -74,10 +71,10 @@ public class PetController {
 
         if(user.getRoles().stream().anyMatch(role -> !RoleEnum.ROLE_USER.name().equals(role.getName())) || pet == null
                 || pet.getPetOwner() == null
-                || !user.equals(pet.getPetOwner().getUser())){
+                || !user.equals(pet.getPetOwner().getUser())
+         ){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
 
         petService.addImagesForPet(pet, petImagesDto.getImageUrls());
 
@@ -119,14 +116,16 @@ public class PetController {
         if(reservationId == null)
             return new ResponseEntity<>("Reservation is empty!", HttpStatus.BAD_REQUEST);
 
-        if(petService.checkIfRateForPetAndReservationExists(petRateRequestDto.getPetId(), reservationId) || !reservationService.isReservationCompleted(reservationId)) {
+        if(petService.checkIfRateForPetAndReservationExists(petRateRequestDto.getPetId(), reservationId)
+                || !reservationService.isReservationCompleted(reservationId)
+        ) {
             return new ResponseEntity<>("There are no reservations to rate", HttpStatus.BAD_REQUEST);
         }
 
         if(petRateRequestDto.getRate().compareTo(BigDecimal.valueOf(5)) > 0 || petRateRequestDto.getRate().compareTo(BigDecimal.valueOf(1)) < 0)
             return new ResponseEntity<>("Only rates in range from 1 to 5", HttpStatus.BAD_REQUEST);
 
-        petService.addPetRate(petRateRequestDto, userService.getCurrentUser());
+        petService.addPetRate(petRateRequestDto, user);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

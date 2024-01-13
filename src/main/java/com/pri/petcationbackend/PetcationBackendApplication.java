@@ -16,6 +16,6 @@ public class PetcationBackendApplication {
 
     @Bean
     public CommandLineRunner demo(RoleService roleService) {
-        return args -> roleService.saveRoleIfNotExists(RoleEnum.values());
+        return args -> roleService.saveRolesIfNotExists(RoleEnum.values());
     }
 }

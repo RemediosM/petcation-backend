@@ -45,7 +45,7 @@ class PetServiceImplTest {
     }
 
     @Test
-    void getAllPetsByUserWhenNothingFound() {
+    void getAllPetsByUser_whenNothingFound() {
         // given
         var user = new User();
         given(petRepository.findAllByUser(user)).willReturn(new HashSet<>());
@@ -58,7 +58,7 @@ class PetServiceImplTest {
     }
 
     @Test
-    void getAllPetsByUserWhenPetsFound() {
+    void getAllPetsByUser_whenPetsFound() {
         // given
         var user = new User();
         var pet = new Pet(1L, LocalDate.now(), "name1", "description1", new PetOwner(), new PetType("DOG"), new ArrayList<>(), new ArrayList<>());
@@ -74,7 +74,7 @@ class PetServiceImplTest {
     }
 
     @Test
-    void getAllPetsWhenNothingFound() {
+    void getAllPets_whenNothingFound() {
         // given
         given(petRepository.findAll()).willReturn(new ArrayList<>());
 
@@ -86,9 +86,8 @@ class PetServiceImplTest {
     }
 
     @Test
-    void getAllPetsWhenPetsFound() {
+    void getAllPets_whenPetsFound() {
         // given
-        var user = new User();
         var pet = new Pet(1L, LocalDate.now(), "name1", "description1", new PetOwner(), new PetType("DOG"), new ArrayList<>(), new ArrayList<>());
         var petDto = new PetResponseDto(pet, Collections.emptyList());
         given(petRepository.findAll()).willReturn(List.of(pet));

@@ -30,7 +30,6 @@ public class ReservationController {
 
     private final ReservationService reservationService;
     private final HotelService hotelService;
-
     private final UserService userService;
 
     @GetMapping("/reservation")
@@ -77,7 +76,9 @@ public class ReservationController {
         if(reservation == null) {
             return new ResponseEntity<>("There is no reservation with the given id", HttpStatus.BAD_REQUEST);
         }
-        if(!ReservationStatusEnum.PENDING.getCode().equals(reservation.getStatus()) && !ReservationStatusEnum.ACCEPTED.getCode().equals(reservation.getStatus())){
+        if(!ReservationStatusEnum.PENDING.getCode().equals(reservation.getStatus())
+                && !ReservationStatusEnum.ACCEPTED.getCode().equals(reservation.getStatus())
+        ){
             return new ResponseEntity<>("The reservation does not have the status Pending or Accepted", HttpStatus.BAD_REQUEST);
         }
         reservationService.rejectReservation(reservation);
