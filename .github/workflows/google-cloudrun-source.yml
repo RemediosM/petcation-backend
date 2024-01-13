@@ -94,8 +94,8 @@ jobs:
       - name: clean and install
         run: mvn clean install
 
-      - name: Gcloud Auth
-        run: gcloud config set account ACCOUNT
+      # - name: Gcloud Auth
+      #   run: gcloud config set account ACCOUNT
 
       - name: Run Gcloud
         run: gcloud app deploy /home/runner/.m2/repository/com/pri/petcation-backend/0.0.1-SNAPSHOT/petcation-backend-0.0.1-SNAPSHOT.jar
