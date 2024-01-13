@@ -67,66 +67,41 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - run: echo p "$SSH_KEY" k
-        env:
-          SSH_KEY: ${{secrets.GOOGLE_CLOUD_EMAIL}}
-
-
-      - name: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
-        run: echo to jest klucz ${{ secrets.GOOGLE_CLOUD_EMAIL }} koniec klucza
-
+        
       - name: Set Java 17
         uses: actions/setup-java@v2
         with:
           distribution: "temurin"
           java-version: 17
-        
-      # - name: Auth
-      #   uses: 'google-github-actions/setup-gcloud@v0'
-      #   with:
-      #     service_account_email: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
-      #     service_account_key: ${{ secrets.GOOGLE_CLOUD_KEY }}
-      #     project_id: petcation-runner
-
-      - uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CLOUD_JSON_AUTH }}'
-        
+          
       - name: Add Maven
         uses: stCarolas/setup-maven@v4.5
         with:
           maven-version: 3.8.2
-
-      - name: Check Maven
-        run: mvn -version
-
-      - name: Check Java
-        run: java -version
+          
+      - name: Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CLOUD_JSON_AUTH }}'
 
       - name: clean and install
         run: mvn clean install
 
-      # - name: Gcloud Auth
-      #   run: gcloud config set account ACCOUNT
-
+      - name: Dump run
+        run: java -jar petcation-backend-0.0.1-SNAPSHOT.jar
       
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v0
-        with:
-          service: default
-          region: europe-central2
-          image: "gcr.io/petcation-405617/cloudRunName:main"
+      # - name: Deploy to Cloud Run
+      #   id: deploy
+      #   uses: google-github-actions/deploy-cloudrun@v0
+      #   with:
+      #     service: default
+      #     region: europe-central2
+          # image: "gcr.io/petcation-405617/cloudRunName:main"
           # # NOTE: If required, update to the appropriate source folder
           # source: ./
 
-      # - name: Run Gcloud
-      #   run: gcloud app deploy /home/runner/.m2/repository/com/pri/petcation-backend/0.0.1-SNAPSHOT/petcation-backend-0.0.1-SNAPSHOT.jar
-
-      - name: hello
-        run: echo hello
-
+      - name: Run Gcloud
+        run: gcloud app deploy /home/runner/.m2/repository/com/pri/petcation-backend/0.0.1-SNAPSHOT/petcation-backend-0.0.1-SNAPSHOT.jar
       
       # - name: auth
       #   uses: 'google-github-actions/auth@v2'
