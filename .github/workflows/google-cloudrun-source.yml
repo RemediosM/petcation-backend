@@ -67,7 +67,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Echo secret
+      - name: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
         run: echo ${{ secrets.GOOGLE_CLOUD_EMAIL }}
 
       - name: Set Java 17
