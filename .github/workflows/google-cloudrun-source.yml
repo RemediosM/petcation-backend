@@ -67,9 +67,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - env:
-      #     OUTPUT1: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
-      #     run: echo "$OUTPUT1"
+      - run: 'echo "$SSH_KEY" > key'
+        shell: bash
+        env:
+          SSH_KEY: ${{secrets.GOOGLE_CLOUD_EMAIL}}
 
 
       - name: ${{ secrets.GOOGLE_CLOUD_EMAIL }}
