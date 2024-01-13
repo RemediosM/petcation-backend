@@ -117,6 +117,7 @@ jobs:
         with:
           service: default
           region: europe-central2
+          image: "gcr.io/petcation-405617/cloudRunName:main"
           # # NOTE: If required, update to the appropriate source folder
           # source: ./
 
