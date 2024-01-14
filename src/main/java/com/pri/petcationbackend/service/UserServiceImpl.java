@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public ConfirmationTokenDto registerNewUserAccount(SignUpDto signUpDto)  {
+    public void registerNewUserAccount(SignUpDto signUpDto)  {
         Address address = null;
         AddressDto addressDto = signUpDto.getAddressDto();
 
@@ -81,9 +81,6 @@ public class UserServiceImpl implements UserService {
                             }
                     );
         }
-        ConfirmationToken confirmationToken = new ConfirmationToken(user);
-        confirmationTokenRepository.save(confirmationToken);
-        return confirmationToken.toDto();
     }
 
     private City getCityOrAddNew(String city, Country country) {

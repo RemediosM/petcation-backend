@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface UserService {
 
-    ConfirmationTokenDto registerNewUserAccount(SignUpDto signUpDto);
+    void registerNewUserAccount(SignUpDto signUpDto);
     User findByEmail(String email);
     UserDto loadUserByUsername(String email) throws UsernameNotFoundException;
     User getCurrentUser();

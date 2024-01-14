@@ -80,9 +80,9 @@ public class RegistrationController {
         if(!Objects.equals(signUpDto.getPassword(), signUpDto.getMatchingPassword()))
             return new ResponseEntity<>(PASSWORD_DO_NOT_MATCH, HttpStatus.BAD_REQUEST);
 
-        ConfirmationTokenDto confirmationTokenDto = userService.registerNewUserAccount(signUpDto);
+        userService.registerNewUserAccount(signUpDto);
 
-        return ResponseEntity.ok().body(confirmationTokenDto);
+        return ResponseEntity.ok().body("User is registered successfully!");
     }
 
     @PostMapping("/confirmEmail")
